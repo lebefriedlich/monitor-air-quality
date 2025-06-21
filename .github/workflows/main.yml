@@ -1,0 +1,34 @@
+name: Laravel Deploy via FTP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Upload app (tanpa public/)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME_NON_PUBLIC }}
+          password: ${{ secrets.FTP_PASSWORD_NON_PUBLIC }}
+          server-dir: /  # Folder aplikasi Laravel di server
+          local-dir: ./  # Direktori root aplikasi Laravel
+          exclude: |
+            public
+
+      - name: Upload folder public ke subdomain
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /  # Folder untuk subdomain
+          local-dir: ./public/  # Folder public Laravel
