@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('iaqi', function (Blueprint $table) {
             $table->id();
             $table->foreignUuid('region_id')->constrained('regions')->onDelete('cascade');
+            $table->timestamp('observed_at')->index();
             $table->string('dominent_pol');
             $table->decimal('dew', 5, 2)->nullable();
             $table->decimal('h', 5, 2)->nullable();
