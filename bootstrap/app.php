@@ -17,12 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->command('app:sync-region-air-quality')
+        $schedule->command('app:sync-predict-air-quality')
             ->dailyAt('00:00')
             ->withoutOverlapping()
             ->onSuccess(function () {
                 if (now()->format('H:i') === '00:00') {
-                    Log::info('Menjalankan sync-air-quality setelah sync-region-air-quality selesai.');
                     Artisan::call('app:sync-air-quality');
                 }
             });

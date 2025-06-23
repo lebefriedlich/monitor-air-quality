@@ -31,7 +31,9 @@ class SyncAirQuality extends Command
      */
     public function handle()
     {
-        Log::info('Sinkronisasi data IAQI dimulai');
+        Log::info('Sinkronisasi data IAQI dimulai', [
+            'timestamp' => Carbon::now()->toDateTimeString()
+        ]);
         $tokens = Token::pluck('token')->toArray();
         $regions = Region::all();
 
@@ -50,7 +52,9 @@ class SyncAirQuality extends Command
             }
 
             if (!$data) {
-                Log::warning("Gagal ambil data untuk region: {$region->name}");
+                Log::warning("Gagal ambil data untuk region: {$region->name}", [
+                    'timestamp' => Carbon::now()->toDateTimeString(),
+                ]);
                 continue;
             }
 
@@ -65,15 +69,15 @@ class SyncAirQuality extends Command
                 'dew'           => $iaqi['dew']['v'] ?? null,
                 'h'             => $iaqi['h']['v'] ?? null,
                 'p'             => $iaqi['p']['v'] ?? null,
-                'pm10'          => $iaqi['pm10']['v'] ?? null,
                 'pm25'          => $iaqi['pm25']['v'] ?? null,
                 'r'             => $iaqi['r']['v'] ?? null,
                 't'             => $iaqi['t']['v'] ?? null,
                 'w'             => $iaqi['w']['v'] ?? null,
-                'wg'            => $iaqi['wg']['v'] ?? null,
             ]);
         }
 
-        Log::info('Sinkronisasi data IAQI selesai');
+        Log::info('Sinkronisasi data IAQI selesai', [
+            'timestamp' => Carbon::now()->toDateTimeString()
+        ]);
     }
 }

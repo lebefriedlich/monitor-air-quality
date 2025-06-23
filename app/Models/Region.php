@@ -30,4 +30,14 @@ class Region extends Model
     {
         return $this->hasMany(IAQI::class, 'region_id', 'id');
     }
+
+    public function predictIaqi()
+    {
+        return $this->hasMany(PredictIAQI::class, 'region_id', 'id');
+    }
+
+    public function latestIaqi()
+    {
+        return $this->hasOne(IAQI::class)->latest('observed_at');
+    }
 }
