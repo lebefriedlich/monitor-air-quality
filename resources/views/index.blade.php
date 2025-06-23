@@ -107,7 +107,7 @@
                 const value = latest[pol] ?? 'N/A';
 
                 const popupContent = `
-                    <b>${data.name}</b><br>
+                    <b>${data.name}${data.city ? ', ' + data.city : ''}</b><br>
                     Dominan: ${pol?.toUpperCase()}<br>
                     AQI: ${value}<br>
                     Lat: ${lat}, Lng: ${lng}
