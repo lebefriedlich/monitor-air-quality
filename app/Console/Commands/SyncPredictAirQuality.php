@@ -31,9 +31,7 @@ class SyncPredictAirQuality extends Command
      */
     public function handle()
     {
-        Log::info('Sinkronisasi prediksi kualitas udara dimulai', [
-            'timestamp' => Carbon::now()->toDateTimeString()
-        ]);
+        Log::info('Sinkronisasi prediksi kualitas udara dimulai');
         $sevenDaysAgo = Carbon::now()->subDays(7);
         $today = Carbon::now()->format('Y-m-d');
 
@@ -47,9 +45,7 @@ class SyncPredictAirQuality extends Command
             ->get();
 
         if ($regions->isEmpty()) {
-            Log::info('Tidak ada data IAQI yang ditemukan untuk sinkronisasi prediksi.', [
-                'timestamp' => Carbon::now()->toDateTimeString()
-            ]);
+            Log::info('Tidak ada data IAQI yang ditemukan untuk sinkronisasi prediksi.');
             return Command::SUCCESS;
         }
 
@@ -93,8 +89,6 @@ class SyncPredictAirQuality extends Command
             }
         }
 
-        Log::info('Sinkronisasi prediksi kualitas udara selesai',[
-            'timestamp' => Carbon::now()->toDateTimeString()
-        ]);
+        Log::info('Sinkronisasi prediksi kualitas udara selesai');
     }
 }

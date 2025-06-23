@@ -109,7 +109,7 @@
                 const popupContent = `
                     <b>${data.name}${data.city ? ', ' + data.city : ''}</b><br>
                     Dominan: ${pol?.toUpperCase()}<br>
-                    AQI: ${value}<br>
+                    AQI: ${String(value)}<br>
                     Lat: ${lat}, Lng: ${lng}
                 `;
 
