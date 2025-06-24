@@ -18,20 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withSchedule(function (Schedule $schedule) {
         $schedule->command('app:sync-predict-air-quality')
-            ->dailyAt('00:00')
-            ->withoutOverlapping()
-            ->onSuccess(function () {
-                if (now()->format('H:i') === '00:00') {
-                    Artisan::call('app:sync-air-quality');
-                }
-            });
+            ->dailyAt('00:05');
 
         $schedule->command('app:sync-air-quality')
-            ->everyTwoHours()
-            ->withoutOverlapping()
-            ->when(function () {
-                return now()->format('H:i') !== '00:00';
-            });
+            ->everyTwoHours();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
