@@ -54,14 +54,14 @@ class SyncAirQuality extends Command
                 continue;
             }
 
-            $iaqi = $data['iaqi'] ?? [];
-            $timestamp = $data['time']['iso'] ?? now()->toISOString();
+            $iaqi = $data['iaqi'];
+            $timestamp = $data['time']['s'];
 
             // Simpan data ke tabel iaqi
             IAQI::updateOrCreate(
                 [
                     'region_id'   => $region->id,
-                    'observed_at' => Carbon::parse($timestamp),
+                    'observed_at' => $timestamp,
                 ],
                 [
                     'dominent_pol'  => $data['dominentpol'] ?? '-',
