@@ -58,18 +58,22 @@ class SyncAirQuality extends Command
             $timestamp = $data['time']['iso'] ?? now()->toISOString();
 
             // Simpan data ke tabel iaqi
-            IAQI::create([
-                'region_id'     => $region->id,
-                'observed_at'   => Carbon::parse($timestamp),
-                'dominent_pol'  => $data['dominentpol'] ?? '-',
-                'dew'           => $iaqi['dew']['v'] ?? null,
-                'h'             => $iaqi['h']['v'] ?? null,
-                'p'             => $iaqi['p']['v'] ?? null,
-                'pm25'          => $iaqi['pm25']['v'] ?? null,
-                'r'             => $iaqi['r']['v'] ?? null,
-                't'             => $iaqi['t']['v'] ?? null,
-                'w'             => $iaqi['w']['v'] ?? null,
-            ]);
+            IAQI::updateOrCreate(
+                [
+                    'region_id'   => $region->id,
+                    'observed_at' => Carbon::parse($timestamp),
+                ],
+                [
+                    'dominent_pol'  => $data['dominentpol'] ?? '-',
+                    'dew'           => $iaqi['dew']['v'] ?? null,
+                    'h'             => $iaqi['h']['v'] ?? null,
+                    'p'             => $iaqi['p']['v'] ?? null,
+                    'pm25'          => $iaqi['pm25']['v'] ?? null,
+                    'r'             => $iaqi['r']['v'] ?? null,
+                    't'             => $iaqi['t']['v'] ?? null,
+                    'w'             => $iaqi['w']['v'] ?? null,
+                ]
+            );
         }
 
         Log::info('Sinkronisasi data IAQI selesai');
