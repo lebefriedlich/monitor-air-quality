@@ -43,17 +43,21 @@ class SyncPredictAirQuality extends Command
                 'longitude' => (float) $region->longitude,
                 'url' => $region->url,
                 'date_now' => $today,
-                'iaqi' => $region->iaqi->map(function ($iaqi) {
-                    return [
-                        'observed_at' => $iaqi->observed_at,
-                        'dew'         => $iaqi->dew,
-                        'h'           => $iaqi->h,
-                        'p'           => $iaqi->p,
-                        'pm25'        => $iaqi->pm25,
-                        't'           => $iaqi->t,
-                        'w'           => $iaqi->w,
-                    ];
-                })->toArray()
+                'iaqi' => $region->iaqi
+                    ->unique('observed_at')
+                    ->values()
+                    ->map(function ($iaqi) {
+                        return [
+                            'observed_at' => $iaqi->observed_at,
+                            'dew'         => $iaqi->dew,
+                            'h'           => $iaqi->h,
+                            'p'           => $iaqi->p,
+                            'pm25'        => $iaqi->pm25,
+                            't'           => $iaqi->t,
+                            'w'           => $iaqi->w,
+                        ];
+                    })
+                    ->toArray()
             ];
         })->toArray();
 
