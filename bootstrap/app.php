@@ -18,10 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withSchedule(function (Schedule $schedule) {
         $schedule->command('app:sync-predict-air-quality')
-            ->dailyAt('00:05');
+            ->dailyAt('00:03');
 
         $schedule->command('app:sync-air-quality')
-            ->everyTwoHours();
+            ->everyTenMinutes();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

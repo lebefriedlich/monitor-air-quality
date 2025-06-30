@@ -59,6 +59,8 @@ class SyncPredictAirQuality extends Command
                     })
                     ->toArray()
             ];
+        })->each(function ($regionData) {
+            Log::info("Region {$regionData['name']} mengirimkan " . count($regionData['iaqi']) . " data IAQI.");
         })->toArray();
 
         try {

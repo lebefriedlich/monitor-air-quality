@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Models\IAQI;
 use App\Models\Region;
 use App\Models\Token;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
