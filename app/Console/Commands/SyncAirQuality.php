@@ -37,14 +37,18 @@ class SyncAirQuality extends Command
         foreach ($regions as $region) {
             $data = null;
 
-            // Coba tiap token sampai dapat data
             foreach ($tokens as $token) {
                 $url = "https://api.waqi.info/feed/{$region->url}/?token={$token}";
-                $response = Http::get($url);
 
-                if ($response->successful() && $response['status'] === 'ok') {
-                    $data = $response['data'];
-                    break;
+                try {
+                    $response = Http::timeout(15)->retry(3, 5000)->get($url);
+
+                    if ($response->successful() && $response['status'] === 'ok') {
+                        $data = $response['data'];
+                        break;
+                    }
+                } catch (\Exception $e) {
+                    Log::error("Error fetching region {$region->name} with token: {$token}. Error: " . $e->getMessage());
                 }
             }
 
@@ -53,26 +57,31 @@ class SyncAirQuality extends Command
                 continue;
             }
 
-            $iaqi = $data['iaqi'];
-            $timestamp = $data['time']['s'];
+            try {
+                $iaqi = $data['iaqi'];
+                $timestamp = $data['time']['s'];
 
-            // Simpan data ke tabel iaqi
-            IAQI::updateOrCreate(
-                [
-                    'region_id'   => $region->id,
-                    'observed_at' => $timestamp,
-                ],
-                [
-                    'dominent_pol'  => $data['dominentpol'] ?? '-',
-                    'dew'           => $iaqi['dew']['v'] ?? null,
-                    'h'             => $iaqi['h']['v'] ?? null,
-                    'p'             => $iaqi['p']['v'] ?? null,
-                    'pm25'          => $iaqi['pm25']['v'] ?? null,
-                    'r'             => $iaqi['r']['v'] ?? null,
-                    't'             => $iaqi['t']['v'] ?? null,
-                    'w'             => $iaqi['w']['v'] ?? null,
-                ]
-            );
+                IAQI::updateOrCreate(
+                    [
+                        'region_id'   => $region->id,
+                        'observed_at' => $timestamp,
+                    ],
+                    [
+                        'dominent_pol'  => $data['dominentpol'] ?? '-',
+                        'dew'           => $iaqi['dew']['v'] ?? null,
+                        'h'             => $iaqi['h']['v'] ?? null,
+                        'p'             => $iaqi['p']['v'] ?? null,
+                        'pm25'          => $iaqi['pm25']['v'] ?? null,
+                        'r'             => $iaqi['r']['v'] ?? null,
+                        't'             => $iaqi['t']['v'] ?? null,
+                        'w'             => $iaqi['w']['v'] ?? null,
+                    ]
+                );
+            } catch (\Exception $e) {
+                Log::error("Gagal menyimpan data IAQI untuk region {$region->name}: " . $e->getMessage());
+            }
+
+            sleep(1); // delay kecil untuk menghindari rate limit
         }
 
         Log::info('Sinkronisasi data IAQI selesai');
