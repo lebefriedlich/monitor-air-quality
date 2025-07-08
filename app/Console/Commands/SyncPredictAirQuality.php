@@ -61,7 +61,7 @@ class SyncPredictAirQuality extends Command
             ];
 
             try {
-                $response = Http::timeout(120)
+                $response = Http::timeout(120)->retry(3, 5000)
                     ->post('https://predict-air-quality.mhna.my.id/predict-single-region', $payload);
 
                 if (!$response->successful()) {
