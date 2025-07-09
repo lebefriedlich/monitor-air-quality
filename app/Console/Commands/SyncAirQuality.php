@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\IAQI;
 use App\Models\Region;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -24,8 +25,10 @@ class SyncAirQuality extends Command
             '466c042386905f85eba7eaac7213376b335ccbdf'
         ];
 
-        Region::chunk(5, function ($regions) use ($tokens) {
-            foreach ($regions as $region) {
+        $allIAQIData = [];
+
+        Region::chunk(5, function ($regions) use ($tokens, &$allIAQIData) {
+            foreach ($regions as $index => $region) {
                 $data = null;
 
                 foreach ($tokens as $token) {
@@ -69,6 +72,27 @@ class SyncAirQuality extends Command
                         ]
                     );
 
+                    $allIAQIData[$index] = [
+                        'region' => [
+                            'id'        => $region->id,
+                            'name'      => $region->name,
+                            'city'      => $region->city,
+                            'latitude'  => $region->latitude,
+                            'longitude' => $region->longitude,
+                            'url'       => $region->url,
+                            'iaqi'      => [
+                                'dominent_pol' => $data['dominentpol'] ?? '-',
+                                'dew'          => $iaqi['dew']['v'] ?? null,
+                                'h'            => $iaqi['h']['v'] ?? null,
+                                'p'            => $iaqi['p']['v'] ?? null,
+                                'pm25'         => $iaqi['pm25']['v'] ?? null,
+                                'r'            => $iaqi['r']['v'] ?? null,
+                                't'            => $iaqi['t']['v'] ?? null,
+                                'w'            => $iaqi['w']['v'] ?? null,
+                            ]
+                        ]
+                    ];
+
                     DB::disconnect();
                 } catch (\Exception $e) {
                     Log::error("Gagal menyimpan data IAQI untuk region {$region->name}: " . $e->getMessage());
@@ -77,6 +101,9 @@ class SyncAirQuality extends Command
                 sleep(1);
             }
         });
+
+        Cache::forget('iaqi_data_all_regions');
+        Cache::put('iaqi_data_all_regions', $allIAQIData, 3600);
 
         Log::info('Sinkronisasi data IAQI selesai');
     }

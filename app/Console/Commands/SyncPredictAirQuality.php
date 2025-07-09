@@ -6,6 +6,7 @@ use App\Models\PredictIAQI;
 use App\Models\Region;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -35,6 +36,7 @@ class SyncPredictAirQuality extends Command
             return Command::SUCCESS;
         }
 
+        $predictedRegions = [];
         foreach ($regions as $region) {
             $iaqi = $region->iaqi->unique('observed_at')->values();
 
@@ -78,7 +80,7 @@ class SyncPredictAirQuality extends Command
 
                 PredictIAQI::where('region_id', $region->id)->delete();
 
-                foreach ($result['predictions'] as $prediction) {
+                foreach ($result['predictions'] as $index => $prediction) {
                     if (!isset($prediction['date'], $prediction['predicted_aqi'], $prediction['predicted_category'])) {
                         Log::warning("Invalid prediction data: " . json_encode($prediction));
                         continue;
@@ -90,6 +92,13 @@ class SyncPredictAirQuality extends Command
                         'predicted_aqi'      => $prediction['predicted_aqi'],
                         'predicted_category' => $prediction['predicted_category'],
                     ]);
+
+                    $predictedRegions[$index] = [
+                        'region_id'          => $region->id,
+                        'date'               => Carbon::parse($prediction['date'])->format('Y-m-d'),
+                        'predicted_aqi'      => $prediction['predicted_aqi'],
+                        'predicted_category' => $prediction['predicted_category'],
+                    ];
                 }
 
                 Log::info("Prediction sync completed for region {$region->name}.");
@@ -97,6 +106,10 @@ class SyncPredictAirQuality extends Command
                 Log::error("Exception while syncing region {$region->name}: " . $e->getMessage());
             }
         }
+
+        // Save all predicted regions to cache
+        Cache::forget('predicted_regions');
+        Cache::put('predicted_regions', $predictedRegions, now()->addDay());
 
         Log::info('Per-region prediction sync finished.');
         return Command::SUCCESS;
