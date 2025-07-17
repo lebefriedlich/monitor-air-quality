@@ -19,15 +19,15 @@ class SyncPredictAirQuality extends Command
     {
         Log::info('Starting per-region air quality prediction sync.');
 
-        $sevenDaysAgo = Carbon::now()->subDays(7);
+        $monthAgo = Carbon::now()->subDays(30);
         $today = Carbon::now()->format('Y-m-d');
 
-        $regions = Region::whereHas('iaqi', function ($query) use ($sevenDaysAgo) {
-            $query->where('observed_at', '>=', $sevenDaysAgo);
+        $regions = Region::whereHas('iaqi', function ($query) use ($monthAgo) {
+            $query->where('observed_at', '>=', $monthAgo);
         })
-        ->with(['iaqi' => function ($query) use ($sevenDaysAgo) {
-            $query->where('observed_at', '>=', $sevenDaysAgo)
-                  ->orderBy('observed_at');
+        ->with(['iaqi' => function ($query) use ($monthAgo) {
+            $query->where('observed_at', '>=', $monthAgo)
+                  ->orderBy('observed_at', 'asc');
         }])
         ->get();
 
@@ -108,8 +108,8 @@ class SyncPredictAirQuality extends Command
         }
 
         // Save all predicted regions to cache
-        Cache::forget('predicted_regions');
-        Cache::put('predicted_regions', $predictedRegions, now()->addDay());
+        // Cache::forget('predicted_regions');
+        // Cache::put('predicted_regions', $predictedRegions, now()->addDay());
 
         Log::info('Per-region prediction sync finished.');
         return Command::SUCCESS;
