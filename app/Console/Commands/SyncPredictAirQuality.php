@@ -108,8 +108,8 @@ class SyncPredictAirQuality extends Command
         }
 
         // Save all predicted regions to cache
-        // Cache::forget('predicted_regions');
-        // Cache::put('predicted_regions', $predictedRegions, now()->addDay());
+        Cache::forget('predicted_regions');
+        Cache::put('predicted_regions', $predictedRegions, now()->addDay());
 
         Log::info('Per-region prediction sync finished.');
         return Command::SUCCESS;
