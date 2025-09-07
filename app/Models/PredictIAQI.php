@@ -13,6 +13,9 @@ class PredictIAQI extends Model
 
     protected $casts = [
         'date' => 'datetime',
+        'cv_metrics_svr' => 'array',
+        'cv_metrics_baseline' => 'array',
+        'model_info' => 'array',
     ];
     protected $keyType = 'string';
     public $incrementing = false;
