@@ -83,8 +83,8 @@ class SyncPredictAirQuality extends Command
 
             try {
                 $response = Http::withHeaders([
-                        'x-api-key' => config('services.api_key'),
-                    ])
+                    'x-api-key' => config('services.api_key'),
+                ])
                     ->timeout(120)
                     ->retry(3, 5000)
                     ->acceptJson()
@@ -113,8 +113,23 @@ class SyncPredictAirQuality extends Command
                 // Ambil satu prediksi H+1 (asumsi selalu satu)
                 $pred = $result['predictions'][0] ?? null;
 
-                if (!$pred || !isset($pred['predicted_aqi'], $pred['predicted_category'])) {
-                    Log::warning("[PredictAQI] Invalid/empty prediction for region {$region->name}", ['pred' => $pred, 'result' => $result]);
+                if ($pred) {
+                    // Normalisasi agar backward-compatible
+                    $aqi = $pred['predicted_aqi']
+                        ?? $pred['predicted_ispu_estimated']        // ISPU Indonesia
+                        ?? (isset($pred['predicted_iaqi_pm25']) ? round($pred['predicted_iaqi_pm25']) : null); // US IAQI PM2.5
+
+                    $category = $pred['predicted_category']
+                        ?? $pred['predicted_category_ispu_estimated'] // ISPU Indonesia
+                        ?? $pred['predicted_category_us']             // US AQI
+                        ?? null;
+                }
+
+                if ($pred === null || $aqi === null || $category === null) {
+                    Log::warning("[PredictAQI] Invalid/empty prediction for region {$region->name}", [
+                        'pred' => $pred,
+                        'result' => $result,
+                    ]);
                     continue;
                 }
 
