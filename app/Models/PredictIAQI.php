@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class PredictIAQI extends Model
 {
-    protected $table = 'predict_aqi';
+    protected $table = 'predict_iaqi';
 
     protected $guarded = ['id'];
 

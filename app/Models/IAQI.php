@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class IAQI extends Model
 {
-    protected $table = 'aqi';
+    protected $table = 'iaqi';
 
     protected $guarded = [
         'id'
