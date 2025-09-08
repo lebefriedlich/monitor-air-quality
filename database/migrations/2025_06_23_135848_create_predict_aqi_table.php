@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('predict_iaqi', function (Blueprint $table) {
+        Schema::create('predict_aqi', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('region_id')->constrained('regions')->onDelete('cascade');
             $table->timestamp('date');

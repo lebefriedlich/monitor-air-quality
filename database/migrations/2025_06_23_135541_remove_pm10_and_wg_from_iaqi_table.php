@@ -12,9 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('iaqi', function (Blueprint $table) {
-            Schema::table('iaqi', function (Blueprint $table) {
-                $table->dropColumn(['pm10', 'wg']);
-            });
+            $table->dropColumn(['pm10', 'wg']);
         });
     }
 
@@ -23,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('iaqi', function (Blueprint $table) {
+        Schema::table('aqi', function (Blueprint $table) {
             $table->decimal('pm10', 5, 2)->nullable();
             $table->decimal('wg', 5, 2)->nullable();
         });
