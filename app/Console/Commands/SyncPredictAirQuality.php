@@ -23,8 +23,7 @@ class SyncPredictAirQuality extends Command
 
         $baseUrl  = 'https://predict-air-quality.mhna.my.id';
         $path     = '/predict-single-region';
-        $lookback = (int) $this->option('days');
-
+        $lookback = 30;
         $monthAgo = Carbon::now()->subDays($lookback);
         $today    = Carbon::now()->toDateString();
         $endpoint = "{$baseUrl}{$path}";
