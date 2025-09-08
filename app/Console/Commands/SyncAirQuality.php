@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\AQI;
+use App\Models\IAQI;
 use App\Models\Region;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
@@ -25,9 +25,9 @@ class SyncAirQuality extends Command
             '466c042386905f85eba7eaac7213376b335ccbdf'
         ];
 
-        $allAQIData = [];
+        $allIAQIData = [];
 
-        Region::chunk(5, function ($regions) use ($tokens, &$allAQIData) {
+        Region::chunk(5, function ($regions) use ($tokens, &$allIAQIData) {
             foreach ($regions as $index => $region) {
                 $data = null;
 
@@ -52,27 +52,27 @@ class SyncAirQuality extends Command
                 }
 
                 try {
-                    $aqi = $data['aqi'];
+                    $iaqi = $data['iaqi'];
                     $timestamp = $data['time']['s'];
 
-                    AQI::updateOrCreate(
+                    IAQI::updateOrCreate(
                         [
                             'region_id'   => $region->id,
                             'observed_at' => $timestamp,
                         ],
                         [
                             'dominent_pol'  => $data['dominentpol'] ?? '-',
-                            'dew'           => $aqi['dew']['v'] ?? null,
-                            'h'             => $aqi['h']['v'] ?? null,
-                            'p'             => $aqi['p']['v'] ?? null,
-                            'pm25'          => $aqi['pm25']['v'] ?? null,
-                            'r'             => $aqi['r']['v'] ?? null,
-                            't'             => $aqi['t']['v'] ?? null,
-                            'w'             => $aqi['w']['v'] ?? null,
+                            'dew'           => $iaqi['dew']['v'] ?? null,
+                            'h'             => $iaqi['h']['v'] ?? null,
+                            'p'             => $iaqi['p']['v'] ?? null,
+                            'pm25'          => $iaqi['pm25']['v'] ?? null,
+                            'r'             => $iaqi['r']['v'] ?? null,
+                            't'             => $iaqi['t']['v'] ?? null,
+                            'w'             => $iaqi['w']['v'] ?? null,
                         ]
                     );
 
-                    $allAQIData[$index] = [
+                    $allIAQIData[$index] = [
                         'region' => [
                             'id'        => $region->id,
                             'name'      => $region->name,
@@ -80,15 +80,15 @@ class SyncAirQuality extends Command
                             'latitude'  => $region->latitude,
                             'longitude' => $region->longitude,
                             'url'       => $region->url,
-                            'aqi'      => [
+                            'iaqi'      => [
                                 'dominent_pol' => $data['dominentpol'] ?? '-',
-                                'dew'          => $aqi['dew']['v'] ?? null,
-                                'h'            => $aqi['h']['v'] ?? null,
-                                'p'            => $aqi['p']['v'] ?? null,
-                                'pm25'         => $aqi['pm25']['v'] ?? null,
-                                'r'            => $aqi['r']['v'] ?? null,
-                                't'            => $aqi['t']['v'] ?? null,
-                                'w'            => $aqi['w']['v'] ?? null,
+                                'dew'          => $iaqi['dew']['v'] ?? null,
+                                'h'            => $iaqi['h']['v'] ?? null,
+                                'p'            => $iaqi['p']['v'] ?? null,
+                                'pm25'         => $iaqi['pm25']['v'] ?? null,
+                                'r'            => $iaqi['r']['v'] ?? null,
+                                't'            => $iaqi['t']['v'] ?? null,
+                                'w'            => $iaqi['w']['v'] ?? null,
                             ]
                         ]
                     ];
@@ -102,9 +102,9 @@ class SyncAirQuality extends Command
             }
         });
 
-        Cache::forget('aqi_data_all_regions');
-        Cache::put('aqi_data_all_regions', $allAQIData, 3600);
+        Cache::forget('iaqi_data_all_regions');
+        Cache::put('iaqi_data_all_regions', $allIAQIData, 3600);
 
-        Log::info('Sinkronisasi data AQI selesai');
+        Log::info('Sinkronisasi data IAQI selesai');
     }
 }

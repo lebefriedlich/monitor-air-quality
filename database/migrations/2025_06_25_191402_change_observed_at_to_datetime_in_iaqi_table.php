@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('aqi', function (Blueprint $table) {
+        Schema::table('iaqi', function (Blueprint $table) {
             $table->dateTime('observed_at')->change();
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('aqi', function (Blueprint $table) {
+        Schema::table('iaqi', function (Blueprint $table) {
             $table->timestamp('observed_at')->change();
         });
     }

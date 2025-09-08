@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('aqi', function (Blueprint $table) {
+        Schema::table('iaqi', function (Blueprint $table) {
             $table->decimal('pm10', 5, 2)->nullable();
             $table->decimal('wg', 5, 2)->nullable();
         });

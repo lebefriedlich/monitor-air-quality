@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('predict_aqi', function (Blueprint $table) {
+        Schema::table('predict_iaqi', function (Blueprint $table) {
             // Prediksi konsentrasi mentah
             $table->decimal('predicted_pm25', 6, 2)->after('date');
 
@@ -31,7 +31,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('predict_aqi', function (Blueprint $table) {
+        Schema::table('predict_iaqi', function (Blueprint $table) {
             $table->dropColumn([
                 'predicted_pm25',
                 'predicted_ispu',

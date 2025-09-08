@@ -26,18 +26,18 @@ class Region extends Model
         });
     }
 
-    public function aqi()
+    public function iaqi()
     {
-        return $this->hasMany(AQI::class, 'region_id', 'id');
+        return $this->hasMany(IAQI::class, 'region_id', 'id');
     }
 
-    public function predictaqi()
+    public function predictIaqi()
     {
-        return $this->hasMany(PredictAQI::class, 'region_id', 'id');
+        return $this->hasMany(PredictIAQI::class, 'region_id', 'id');
     }
 
-    public function latestAqi()
+    public function latestIaqi()
     {
-        return $this->hasOne(AQI::class)->latest('observed_at');
+        return $this->hasOne(IAQI::class)->latest('observed_at');
     }
 }

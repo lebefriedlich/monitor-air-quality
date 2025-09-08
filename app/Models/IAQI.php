@@ -5,18 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class PredictAQI extends Model
+class IAQI extends Model
 {
-    protected $table = 'predict_aqi';
+    protected $table = 'aqi';
 
-    protected $guarded = ['id'];
-
-    protected $casts = [
-        'date' => 'datetime',
-        'cv_metrics_svr' => 'array',
-        'cv_metrics_baseline' => 'array',
-        'model_info' => 'array',
+    protected $guarded = [
+        'id'
     ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at'
+    ];
+
     protected $keyType = 'string';
     public $incrementing = false;
     public static function boot()
@@ -27,6 +28,7 @@ class PredictAQI extends Model
             $model->id = Str::uuid();
         });
     }
+
 
     public function region()
     {
