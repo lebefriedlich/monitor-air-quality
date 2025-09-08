@@ -22,7 +22,7 @@ class SyncPredictAirQuality extends Command
         Log::info('[PredictAQI] Start per-region prediction sync');
 
         $baseUrl  = 'https://predict-air-quality.mhna.my.id';
-        $path     = '/single-prediction-region';
+        $path     = '/predict-single-region';
         $lookback = (int) $this->option('days');
 
         $monthAgo = Carbon::now()->subDays($lookback);
