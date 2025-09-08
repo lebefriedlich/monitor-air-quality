@@ -71,8 +71,7 @@ class SyncPredictAirQuality extends Command
                 'date_now'  => $today,
                 'iaqi'      => $iaqi->map(function ($row) {
                     return [
-                        // pastikan format ISO 8601 UTC agar pasti di-parse
-                        'observed_at' => Carbon::parse($row->observed_at)->toIso8601ZuluString(),
+                        'observed_at' => $row->observed_at !== null ? $row->observed_at : null,
                         'pm25'        => $row->pm25 !== null ? (float) $row->pm25 : null,
                         't'           => $row->t    !== null ? (float) $row->t    : null,
                         'h'           => $row->h    !== null ? (float) $row->h    : null,
