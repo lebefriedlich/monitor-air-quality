@@ -9,7 +9,7 @@ class Index extends Controller
 {
     public function index()
     {
-        $datas = Region::with('latestAQI')
+        $datas = Region::with('latestIAQI')
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->get()
