@@ -21,8 +21,8 @@ class SyncPredictAirQuality extends Command
     {
         Log::info('[PredictAQI] Start per-region prediction sync');
 
-        $baseUrl  = rtrim($this->option('base-url'), '/');
-        $path     = $this->option('path');
+        $baseUrl  = 'https://predict-air-quality.mhna.my.id';
+        $path     = '/single-prediction-region';
         $lookback = (int) $this->option('days');
 
         $monthAgo = Carbon::now()->subDays($lookback);
@@ -84,7 +84,10 @@ class SyncPredictAirQuality extends Command
             ];
 
             try {
-                $response = Http::timeout(120)
+                $response = Http::withHeaders([
+                        'x-api-key' => config('services.api_key'),
+                    ])
+                    ->timeout(120)
                     ->retry(3, 5000)
                     ->acceptJson()
                     ->asJson()
