@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\PredictIAQI;
+use App\Models\PredictAQI;
 use App\Models\Region;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -29,11 +29,11 @@ class SyncPredictAirQuality extends Command
         $today    = Carbon::now()->toDateString();
         $endpoint = "{$baseUrl}{$path}";
 
-        // Ambil region yang punya data IAQI 30 hari terakhir
-        $regions = Region::whereHas('iaqi', function ($q) use ($monthAgo) {
+        // Ambil region yang punya data AQI 30 hari terakhir
+        $regions = Region::whereHas('aqi', function ($q) use ($monthAgo) {
             $q->where('observed_at', '>=', $monthAgo);
         })
-            ->with(['iaqi' => function ($q) use ($monthAgo) {
+            ->with(['aqi' => function ($q) use ($monthAgo) {
                 $q->where('observed_at', '>=', $monthAgo)
                     ->orderBy('observed_at', 'asc');
             }])
@@ -137,7 +137,7 @@ class SyncPredictAirQuality extends Command
                 ];
 
                 // Overwrite satu baris per region_id
-                PredictIAQI::updateOrCreate(
+                PredictAQI::updateOrCreate(
                     ['region_id' => $region->id],  // kunci tunggal: region_id
                     $payloadDB
                 );

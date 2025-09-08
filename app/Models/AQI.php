@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class IAQI extends Model
+class AQI extends Model
 {
-    protected $table = 'iaqi';
+    protected $table = 'aqi';
 
     protected $guarded = [
         'id'
