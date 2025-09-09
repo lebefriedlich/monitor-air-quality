@@ -111,7 +111,7 @@ class SyncPredictAirQuality extends Command
                 }
 
                 // Ambil satu prediksi H+1 (asumsi selalu satu)
-                $pred = $result['predictions'][0] ?? null;
+                $pred = $result['predictions'] ?? null;
 
                 if ($pred) {
                     // Normalisasi agar backward-compatible
@@ -139,11 +139,11 @@ class SyncPredictAirQuality extends Command
                 // Siapkan payload lengkap (US EPA + ISPU + metrics + model_info)
                 $payloadDB = [
                     'date'                     => $date,
-                    'predicted_pm25'           => isset($pred['predicted_pm25']) ? round((float) $pred['predicted_pm25'], 2) : null,
-                    'predicted_aqi'            => round((float) $pred['predicted_aqi'], 2),
-                    'predicted_category'       => (string) $pred['predicted_category'],
-                    'predicted_ispu'           => isset($pred['predicted_ispu']) ? (int) $pred['predicted_ispu'] : null,
-                    'predicted_category_ispu'  => $pred['predicted_category_ispu'] ?? null,
+                    'predicted_pm25'           => isset($pred['estimated_pm25_ugm3_from_aqi_us']) ? round((float) $pred['estimated_pm25_ugm3_from_aqi_us'], 2) : null,
+                    'predicted_aqi'            => round((float) $pred['predicted_iaqi_pm25'], 2),
+                    'predicted_category'       => (string) $pred['predicted_category_us'],
+                    'predicted_ispu'           => isset($pred['predicted_ispu_estimated']) ? (int) $pred['predicted_ispu_estimated'] : null,
+                    'predicted_category_ispu'  => $pred['predicted_category_ispu_estimated'] ?? null,
                     'cv_metrics_svr'           => $pred['cv_metrics_svr'] ?? null,
                     'cv_metrics_baseline'      => $pred['cv_metrics_baseline'] ?? null,
                     'model_info'               => $result['model_info'] ?? null,
