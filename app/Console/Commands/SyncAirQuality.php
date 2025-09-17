@@ -100,7 +100,7 @@ class SyncAirQuality extends Command
 
                 sleep(1);
             }
-        });
+        }); 
 
         Cache::forget('iaqi_data_all_regions');
         Cache::put('iaqi_data_all_regions', $allIAQIData, 3600);
