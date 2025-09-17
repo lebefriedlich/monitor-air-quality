@@ -14,7 +14,7 @@ class Index extends Controller
             ->whereNotNull('longitude')
             ->get()
             ->filter(function ($region) {
-                return $region->latestAQI !== null;
+                return $region->latestIAQI !== null;
             })
             ->values(); // Reset index agar bisa dibaca dengan baik di JSON
 
