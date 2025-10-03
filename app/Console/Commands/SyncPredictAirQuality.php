@@ -63,10 +63,10 @@ class SyncPredictAirQuality extends Command
             // Susun payload sesuai app.py (kolom waktu masuk kandidat: observed_at)
             $payload = [
                 'id'        => (string) $region->id,
-                'name'      => (string) $region->name,
+                'name'      => sanitizeUtf8((string) $region->name),
                 'latitude'  => (float) $region->latitude,
                 'longitude' => (float) $region->longitude,
-                'url'       => $region->url,
+                'url'       => sanitizeUtf8($region->url),
                 'date_now'  => $today,
                 'iaqi'      => $iaqi->map(function ($row) {
                     return [
@@ -171,6 +171,7 @@ class SyncPredictAirQuality extends Command
             } catch (\Throwable $e) {
                 Log::error("[PredictAQI] Exception while syncing {$region->name}", [
                     'error' => $e->getMessage(),
+                    'payload' => $payload,
                 ]);
                 // lanjut region lain
             }
@@ -188,3 +189,10 @@ class SyncPredictAirQuality extends Command
         return Command::SUCCESS;
     }
 }
+
+// Function to sanitize and ensure UTF-8 encoding
+function sanitizeUtf8($input)
+{
+    return mb_convert_encoding($input, 'UTF-8', 'UTF-8');
+}
+
