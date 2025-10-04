@@ -47,7 +47,49 @@ class SyncAirQuality extends Command
                 }
 
                 if (!$data) {
-                    Log::warning("Gagal ambil data untuk region: {$region->name}");
+                    Log::warning("Gagal ambil data untuk region: {$region->name}, fallback ke data DB terakhir");
+
+                    // Cari data IAQI terbaru untuk region ini
+                    $lastIAQI = IAQI::where('region_id', $region->id)
+                        ->orderBy('observed_at', 'desc')
+                        ->first();
+
+                    if ($lastIAQI) {
+                        $allIAQIData[$index] = [
+                            'region' => [
+                                'id'        => $region->id,
+                                'name'      => $region->name,
+                                'city'      => $region->city,
+                                'latitude'  => $region->latitude,
+                                'longitude' => $region->longitude,
+                                'url'       => $region->url,
+                                'iaqi'      => [
+                                    'observed_at'  => $lastIAQI->observed_at,
+                                    'dominent_pol' => $lastIAQI->dominent_pol,
+                                    'dew'          => $lastIAQI->dew,
+                                    'h'            => $lastIAQI->h,
+                                    'p'            => $lastIAQI->p,
+                                    'pm25'         => $lastIAQI->pm25,
+                                    'r'            => $lastIAQI->r,
+                                    't'            => $lastIAQI->t,
+                                    'w'            => $lastIAQI->w,
+                                ],
+                                'status' => 'fallback-db'
+                            ]
+                        ];
+                    } else {
+                        // Kalau sama sekali belum ada data di DB
+                        $allIAQIData[$index] = [
+                            'region' => [
+                                'id'     => $region->id,
+                                'name'   => $region->name,
+                                'city'   => $region->city,
+                                'url'    => $region->url,
+                                'status' => 'no-data'
+                            ]
+                        ];
+                    }
+
                     continue;
                 }
 
@@ -81,6 +123,7 @@ class SyncAirQuality extends Command
                             'longitude' => $region->longitude,
                             'url'       => $region->url,
                             'iaqi'      => [
+                                'observed_at'  => $timestamp,
                                 'dominent_pol' => $data['dominentpol'] ?? '-',
                                 'dew'          => $iaqi['dew']['v'] ?? null,
                                 'h'            => $iaqi['h']['v'] ?? null,
@@ -100,7 +143,7 @@ class SyncAirQuality extends Command
 
                 sleep(1);
             }
-        }); 
+        });
 
         Cache::forget('iaqi_data_all_regions');
         Cache::put('iaqi_data_all_regions', $allIAQIData, 3600);
