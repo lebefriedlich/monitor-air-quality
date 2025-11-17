@@ -13,16 +13,15 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Deploy app via SSH
+      - name: Deploy app via SSH (tanpa public/)
         uses: appleboy/ssh-action@v0.1.4
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
-          source: "./"
-          target: "/laravel-pemantauan-kualitas-udara"
-          rm: true  # Hapus file di server sebelum upload (opsional)
+          args: |
+            rsync -avz --exclude='public' ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/path/to/app/directory
 
       - name: Deploy public folder ke subdomain via SSH
         uses: appleboy/ssh-action@v0.1.4
@@ -31,6 +30,5 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
-          source: "./public/"
-          target: "/public_html/pemantauan-kualitas-udara.mhna.my.id"
-          rm: true  # Hapus file di server sebelum upload (opsional)
+          args: |
+            rsync -avz ./public/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/path/to/subdomain/public/directory
