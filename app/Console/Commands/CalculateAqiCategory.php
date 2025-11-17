@@ -36,6 +36,10 @@ class CalculateAqiCategory extends Command
             $rec->category_ispu = $this->getIspuCategory($aqiIspu);
             $rec->category_us   = $this->getUsCategory($aqiUs);
 
+            if (!mb_check_encoding($rec->category_ispu, 'UTF-8')) {
+                $this->error("Invalid encoding detected.");
+            }
+
             $rec->save();
         }
 

@@ -109,6 +109,10 @@ class SyncAirQuality extends Command
                         // simpan kategori
                         $attributes['category_ispu'] = $this->categoryIspu($aqiIspu);
                         $attributes['category_us']   = $this->categoryUs($aqiUs);
+
+                        if (!mb_check_encoding($attributes['category_ispu'], 'UTF-8')) {
+                            $this->error("Invalid encoding detected.");
+                        }
                     }
 
                     // =========================================================
@@ -128,7 +132,7 @@ class SyncAirQuality extends Command
                             'name'     => $region->name,
                             'city'     => $region->city,
                             'latitude' => $region->latitude,
-                            'longitude'=> $region->longitude,
+                            'longitude' => $region->longitude,
                             'url'      => $region->url,
                             'iaqi'     => $record->toArray(),
                         ]
