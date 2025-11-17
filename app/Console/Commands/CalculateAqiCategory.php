@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Iaqi;
+use App\Models\IAQI;
 use Illuminate\Console\Command;
 
 class CalculateAqiCategory extends Command
@@ -14,7 +14,7 @@ class CalculateAqiCategory extends Command
     {
         $this->info("Menghitung AQI dan kategori ISPU + US EPA...");
 
-        $records = Iaqi::whereNotNull('pm25')->get();
+        $records = IAQI::whereNotNull('pm25')->get();
 
         foreach ($records as $rec) {
             $pm25 = $rec->pm25;
