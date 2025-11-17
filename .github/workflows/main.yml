@@ -10,28 +10,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+  - name: Checkout repo
+    uses: actions/checkout@v4
 
-      - name: Set up SSH key
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+  - name: Set up SSH key
+    uses: webfactory/ssh-agent@v0.5.3
+    with:
+      ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Deploy app via SSH (tanpa public/)
-        uses: appleboy/ssh-action@v0.1.4
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          port: ${{ secrets.SSH_PORT }}
-          args: |
-            rsync -avz --exclude='public' ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/laravel-pemantauan-kualitas-udara
+  - name: Add host to known_hosts
+    run: |
+      mkdir -p ~/.ssh
+      ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy public folder ke subdomain via SSH
-        uses: appleboy/ssh-action@v0.1.4
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          port: ${{ secrets.SSH_PORT }}
-          args: |
-            rsync -avz ./public/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/public_html/pemantauan-kualitas-udara.mhna.my.id
+  - name: Deploy app (tanpa public/)
+    run: |
+      rsync -avz \
+        -e "ssh -p ${{ secrets.SSH_PORT }}" \
+        --exclude='public' \
+        ./ \
+        ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/laravel-pemantauan-kualitas-udara
+
+  - name: Deploy folder public ke subdomain
+    run: |
+      rsync -avz \
+        -e "ssh -p ${{ secrets.SSH_PORT }}" \
+        ./public/ \
+        ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/public_html/pemantauan-kualitas-udara.mhna.my.id
