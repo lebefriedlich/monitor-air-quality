@@ -1,0 +1,467 @@
+/* Variabel Warna Global */
+:root {
+  --color-dark-main: #163549;
+  --color-dark-deep: #0d2a40;
+  --color-text-light: #f8f9fa;
+  --color-button-explore: #385b74;
+  --color-button-back: #89979f;
+  --color-button-border: #4a80a8;
+  /* Variabel Warna Tabel */
+  --color-table-background: #88dbff;
+  --color-table-header: #88dbff;
+  --color-table-border: #6cb5e8;
+  --color-table-text: #212529;
+}
+
+/* 1. Latar Belakang Global dan Teks */
+body {
+  background-color: var(--color-dark-main);
+  color: var(--color-text-light);
+}
+
+/* 2. Header / Hero Section - SESUAI FIGMA FRAME 1000004333 */
+.hero-section {
+  background-image: linear-gradient(
+      to bottom,
+      rgba(22, 53, 73, 0) 23.65%,
+      var(--color-dark-main) 100%
+    ),
+    linear-gradient(rgba(22, 53, 73, 0.7), rgba(22, 53, 73, 0.9)),
+    url("monitor air quality.jpg");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  color: white;
+
+  padding: 79px 0 79px 0;
+  height: 625px;
+  min-height: 625px;
+
+  display: flex;
+  align-items: center;
+}
+
+.hero-section-detail {
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  color: white;
+
+  padding: 79px 0 79px 0;
+  height: 625px;
+  min-height: 625px;
+
+  display: flex;
+  align-items: center;
+}
+
+/* Memberikan padding horizontal 80px pada konten di desktop (lebar 1440px) */
+@media (min-width: 1440px) {
+  .hero-section .container {
+    /* Container Bootstrap default memiliki padding 0.75rem. Ini mensimulasikan padding: 79px 80px */
+    padding-left: 80px;
+    padding-right: 80px;
+  }
+}
+
+/* Media Query: Memperbaiki Hero Section di Mobile (Layar kecil) */
+@media (max-width: 992px) {
+  .hero-section {
+    height: auto;
+    min-height: 450px;
+    padding: 80px 0 20px 0;
+  }
+  .hero-section .row {
+    justify-content: center;
+  }
+  .hero-content {
+    text-align: center;
+  }
+}
+
+/* ---------------------------------------------------- */
+/* 7. Konten Utama (Main Content Wrapper) - BERDASARKAN FRAME 1000004332 */
+
+/* Wrapper utama dengan lebar 1280px dan rata tengah */
+.main-content-wrapper {
+  max-width: 1280px;
+  padding: 0 1rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Menerapkan Flexbox dan Gap 40px sesuai spesifikasi Figma */
+.main-flex-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 40px;
+  padding: 0;
+  width: 100%;
+  margin-top: 40px; /* Tambahkan sedikit margin top di main agar ada jarak dari Hero */
+  margin-bottom: 40px;
+}
+
+/* ---------------------------------------------------- */
+
+/* 3. Tombol Explore More */
+.btn-explore-more {
+  background-color: var(--color-button-explore);
+  border: 2px solid var(--color-button-border);
+  color: white;
+  padding: 12px 40px;
+  font-size: 1.25rem;
+  font-weight: 500;
+  border-radius: 50px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5), 0 0 10px var(--color-button-border);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-explore-more:hover {
+  background-color: #2c4a5f;
+  color: white;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7), 0 0 15px var(--color-button-border);
+}
+
+/* 4. Peta */
+.map-container {
+  /* Hapus margin atas/bawah agar hanya gap 40px yang bekerja */
+  margin: 0;
+  width: 100%; /* Penting agar peta mengisi lebar 1280px */
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+}
+
+#indonesiaMap {
+  height: 500px;
+  width: 100%;
+}
+
+/* CONTAINER DATA DAN TABEL */
+.data-and-table-wrapper {
+  background: var(--color-table-background);
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  /* Hapus margin atas/bawah agar hanya gap 40px yang bekerja */
+  margin: 0;
+  width: 100%; /* Penting agar tabel mengisi lebar 1280px */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* (CSS Tabel lainnya tetap sama) */
+
+#data-header-container {
+  background-color: var(--color-table-background);
+  color: var(--color-table-text);
+  padding: 20px 1rem 10px 1rem;
+  width: 100%;
+}
+
+#data-header-container h2 {
+  color: var(--color-table-text);
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+  padding-left: 0;
+}
+
+/* 5. Tabel Data */
+.air-quality-table {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 0 1rem 1rem 1rem;
+  width: 100%;
+  flex-grow: 1;
+}
+
+.table {
+  border-radius: 0 !important;
+  border-collapse: separate !important;
+  border-spacing: 0;
+  color: var(--color-table-text);
+  --bs-table-bg: var(--color-table-background);
+  --bs-table-striped-bg: var(--color-table-background);
+  --bs-table-hover-bg: var(--color-table-background);
+  --bs-table-border-color: var(--color-table-border);
+  border: none;
+}
+
+.table-header-custom th {
+  background-color: var(--color-table-header) !important;
+  color: var(--color-table-text);
+  font-weight: 600;
+  border-bottom: 1px solid var(--color-table-border) !important;
+  box-shadow: none;
+  border-top: none !important;
+}
+
+.table tbody tr td {
+  border-bottom: 1px solid var(--color-table-border) !important;
+  padding: 12px 0;
+  align-items: center;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+/* Gaya Logo Kota */
+.city-logo {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+  vertical-align: middle;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.table td:nth-child(3),
+.table th:nth-child(3) {
+  font-weight: bold;
+}
+
+.air-quality-table th {
+  vertical-align: middle !important;
+  text-align: center; /* kalau mau rata tengah horizontal juga */
+}
+.air-quality-table td {
+  vertical-align: middle !important;
+  text-align: center; /* kalau mau rata tengah horizontal juga */
+}
+
+/* Tombol Detail */
+.btn-detail {
+  width: 125px;
+  height: 45px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  background-color: #1a64b9;
+  border-color: #1a64b9;
+  color: white;
+  font-weight: 500;
+  font-size: 1rem;
+  border-radius: 10px;
+  transition: background-color 0.2s;
+}
+
+.btn-detail:hover {
+  background-color: #0d5aa5;
+  border-color: #0d5aa5;
+}
+
+/* Mengatur sel terakhir agar tombol berada di tengah */
+.table tbody tr td:last-child {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-right: 12px;
+}
+
+/* 6. Footer */
+.footer-custom {
+  background-color: var(--color-dark-deep) !important;
+  color: white;
+  padding: 20px 0;
+}
+
+/*----------------------------------------------- */
+/* Page Detail Specific Styles */
+
+.btn-back-to-home {
+  background-color: var(--color-button-back);
+  border: 2px solid var(--color-button-border);
+  color: white;
+  padding: 12px 40px;
+  font-size: 1.25rem;
+  font-weight: 500;
+  border-radius: 50px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5), 0 0 10px var(--color-button-border);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-back-to-home:hover {
+  background-color: #b0b7bb;
+  color: white;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7), 0 0 15px var(--color-button-border);
+}
+
+/* Layout khusus tabel kiri - map kanan */
+/* Wrapper utama detail */
+.detail-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 32px;
+  max-width: 1280px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+/* Kolom kiri berisi 2 card */
+.detail-left-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-left-header {
+  width: 100%;
+  height: auto;
+}
+
+/* Card umum */
+.card-block {
+  background: var(--color-table-background);
+  padding-right: 16px;
+  padding-left: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Card header: radius atas saja */
+.detail-left-header.card-block {
+  border-radius: 12px 12px 0 0;
+  overflow: hidden; /* biar tabel ikut ke-radius */
+}
+
+/* Card body: radius bawah saja */
+.detail-left-body.card-block {
+  border-radius: 0 0 12px 12px;
+}
+
+.detail-left-body {
+  display: flex;
+  flex-direction: column; /* ubah column agar teks rapi */
+  align-items: flex-start;
+  justify-content: flex-start;
+
+  padding: 12px 27px;
+  gap: 10px;
+
+  width: 733px;
+  height: 343px;
+
+  background: #88dbff;
+  border-radius: 0 0 12px 12px;
+  overflow-y: auto; /* biar kalau teks panjang ada scroll */
+}
+
+/* Konten teks */
+.detail-body-content p {
+  margin: 0 0 0 0;
+  line-height: 1.5;
+  font-size: 0.95rem;
+  color: #000;
+}
+
+.detail-body-content ul li {
+  margin: 0 0 0 20px;
+  line-height: 1.5;
+  font-size: 0.95rem;
+  color: #000;
+}
+
+.detail-body-content strong {
+  font-weight: 600;
+}
+
+/* Map kanan */
+.detail-map {
+  flex: 1.5;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+#detailMap {
+  width: 100%;
+  height: 420px;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .detail-wrapper {
+    flex-direction: column;
+  }
+  .detail-map {
+    order: -1; /* map ke atas di mobile */
+  }
+}
+
+/* Header tabel kecil di dalam detail */
+.detail-header .table {
+  margin-bottom: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+/* Tabel khusus halaman detail */
+.detail-table {
+  background: var(--color-table-background);
+  border-collapse: separate !important;
+  border-spacing: 0;
+  border: none;
+  border-radius: 12px 12px 0 0; /* hanya atas rounded */
+  overflow: hidden;
+}
+
+/* Header tabel di detail */
+.detail-table th {
+  background: var(--color-table-background);
+  font-weight: 600;
+  border-bottom: 1px solid var(--color-table-border);
+  padding: 12px;
+  text-align: center;
+}
+
+/* Sel tabel */
+.detail-table td {
+  vertical-align: middle;
+  padding: 12px;
+  border-bottom: 1px solid var(--color-table-border);
+  text-align: center;
+}
+
+/* Kolom Area dengan gambar */
+.detail-table td:first-child .detail-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-table td:last-child {
+  text-align: center;
+}
+
+.detail-body {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Kanan: Map */
+.detail-map {
+  flex: 1.5;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+#detailMap {
+  width: 100%;
+  height: 420px;
+}
+
+/* Responsive mobile */
+@media (max-width: 992px) {
+  .detail-wrapper {
+    flex-direction: column;
+  }
+  .detail-map {
+    order: -1; /* map di atas di mobile */
+  }
+}

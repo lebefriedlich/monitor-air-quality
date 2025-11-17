@@ -19,12 +19,10 @@ return new class extends Migration
             $table->decimal('dew', 5, 2)->nullable();
             $table->decimal('h', 5, 2)->nullable();
             $table->decimal('p', 8, 2)->nullable();
-            $table->decimal('pm10', 5, 2)->nullable();
             $table->decimal('pm25', 5, 2)->nullable();
             $table->decimal('r', 5, 2)->nullable();
             $table->decimal('t', 5, 2)->nullable();
             $table->decimal('w', 5, 2)->nullable();
-            $table->decimal('wg', 5, 2)->nullable();
             $table->timestamps();
         });
     }

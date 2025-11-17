@@ -6,9 +6,7 @@ use App\Models\PredictIAQI;
 use App\Models\Region;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -21,20 +19,14 @@ class SyncPredictAirQuality extends Command
     {
         Log::info('[PredictAQI] Start per-region prediction sync');
 
-        $baseUrl  = 'https://predict-air-quality.mhna.my.id';
+        $baseUrl  = 'http://127.0.0.1:5000/';
         $path     = '/predict-single-region';
-        $lookback = 90;
-        $monthAgo = Carbon::now()->subDays($lookback);
         $today    = Carbon::now()->toDateString();
         $endpoint = "{$baseUrl}{$path}";
 
-        // Ambil region yang punya data IAQI 30 hari terakhir
-        $regions = Region::whereHas('iaqi', function ($q) use ($monthAgo) {
-            $q->where('observed_at', '>=', $monthAgo);
-        })
-            ->with(['iaqi' => function ($q) use ($monthAgo) {
-                $q->where('observed_at', '>=', $monthAgo)
-                    ->orderBy('observed_at', 'asc');
+        $regions = Region::whereHas('iaqi')
+            ->with(['iaqi' => function ($q) {
+                $q->orderBy('observed_at', 'asc');
             }])
             ->get();
 
@@ -139,7 +131,7 @@ class SyncPredictAirQuality extends Command
                 // Siapkan payload lengkap (US EPA + ISPU + metrics + model_info)
                 $payloadDB = [
                     'date'                     => $date,
-                    'predicted_pm25'           => isset($pred['estimated_pm25_ugm3_from_aqi_us']) ? round((float) $pred['estimated_pm25_ugm3_from_aqi_us'], 2) : null,
+                    'predicted_pm25'           => isset($pred['predicted_pm25_ugm3']) ? round((float) $pred['predicted_pm25_ugm3'], 2) : null,
                     'predicted_aqi'            => round((float) $pred['predicted_iaqi_pm25'], 2),
                     'predicted_category'       => (string) $pred['predicted_category_us'],
                     'predicted_ispu'           => isset($pred['predicted_ispu_estimated']) ? (int) $pred['predicted_ispu_estimated'] : null,
@@ -155,6 +147,24 @@ class SyncPredictAirQuality extends Command
                     $payloadDB
                 );
 
+                // Cache khusus per region
+                $cacheKey = "predicted_region_{$region->id}";
+
+                Cache::forget($cacheKey);
+                Cache::put($cacheKey, [
+                    'region_id'   => $region->id,
+                    'region_name' => $region->name,
+                    'date'        => $date->toDateString(),
+                    'pm25'        => $payloadDB['predicted_pm25'],
+                    'aqi_us_epa'  => $payloadDB['predicted_aqi'],
+                    'cat_us_epa'  => $payloadDB['predicted_category'],
+                    'ispu'        => $payloadDB['predicted_ispu'],
+                    'cat_ispu'    => $payloadDB['predicted_category_ispu'],
+                    'cv_metrics_svr'      => json_decode($payloadDB['cv_metrics_svr'], true),
+                    'cv_metrics_baseline' => json_decode($payloadDB['cv_metrics_baseline'], true),
+                    'model_info'   => json_decode($payloadDB['model_info'], true),
+                ], now()->addDay());
+
                 // (Opsional) ringkas buat cache/UI
                 $predictedRegions[] = [
                     'region_id'   => $region->id,
@@ -165,6 +175,9 @@ class SyncPredictAirQuality extends Command
                     'cat_us_epa'  => $payloadDB['predicted_category'],
                     'ispu'        => $payloadDB['predicted_ispu'],
                     'cat_ispu'    => $payloadDB['predicted_category_ispu'],
+                    'cv_metrics_svr'      => $payloadDB['cv_metrics_svr'],
+                    'cv_metrics_baseline' => $payloadDB['cv_metrics_baseline'],
+                    'model_info'   => $payloadDB['model_info'],
                 ];
 
                 Log::info("Prediction sync completed for region {$region->name}.");

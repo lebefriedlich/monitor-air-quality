@@ -1,121 +1,176 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="id">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pemantauan Kualitas Udara</title>
 
-    <title>Monitor Kualitas Udara Indonesia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
-    {{-- Bootstrap CSS CDN --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    {{-- Leaflet --}}
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-    <style>
-        #map {
-            height: 500px;
-            margin-bottom: 30px;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
 </head>
 
-<body class="bg-light">
-    <div class="container my-4">
-        <h2 class="text-center mb-4">Peta Kualitas Udara Indonesia</h2>
+<body>
 
-        {{-- Leaflet Map --}}
-        <div id="map" class="mb-5"></div>
+    <header class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8 hero-content">
+                    <p class="mb-2 fs-5">
+                        <img src="{{ asset('images/logo-64.png') }}" alt="Logo" class="me-2"
+                            style="width:24px; height:24px;">
+                        Pemantauan Kualitas Udara
+                    </p>
+                    <h1 class="display-4 fw-bold">PEMANTAUAN KUALITAS UDARA</h1>
+                    <p class="lead">Data kualitas udara real-time &copy; BMKG & World Air Quality Index Project.
+                        Prediksi kualitas udara 1 hari ke depan dibuat oleh Maulana Haekal Noval Akbar, Universitas
+                        Islam Negeri
+                        Malang, menggunakan Support Vector Regression (SVR) untuk tujuan akademik/non-profit.</p>
 
-        {{-- AQI Cards --}}
-        <h3 class="text-center mb-3">Data data dan AQI Saat Ini</h3>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            @foreach ($datas as $data)
-                <div class="col">
-                    @php
-                        $dominantPol = $data->latestIaqi->dominent_pol ?? null;
-                        $aqiValue = $dominantPol ? $data->latestIaqi->{$dominantPol} ?? null : null;
-                        $color = match (true) {
-                            $aqiValue <= 50 => 'green',
-                            $aqiValue <= 100 => 'blue',
-                            $aqiValue <= 150 => 'yellow',
-                            $aqiValue <= 200 => 'red',
-                            default => 'black',
-                        };
-                    @endphp
-                    <div class="card shadow-sm" style="border-left: 8px solid {{ $color }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $data->name }}</h5>
-                            @php
-                                $dominantPol = $data->latestIaqi->dominent_pol ?? null;
-                                $aqiValue = $dominantPol ? $data->latestIaqi->{$dominantPol} ?? 'N/A' : 'N/A';
-                            @endphp
-                            <p class="card-text mb-1">Dominan: <strong>{{ strtoupper($dominantPol ?? 'N/A') }}</strong>
-                            </p>
-                            <p class="card-text fs-4">AQI: <span class="text-primary">{{ $aqiValue }}</span></p>
-                        </div>
+                    <a href="#data-section" class="btn btn-explore-more mt-3">
+                        Jelajahi Lebih Lanjut <i class="bi bi-arrow-down"></i>
+                    </a>
+                </div>
+                <div class="col-lg-4">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="main-content-wrapper">
+            <div class="main-flex-section">
+
+                <div class="map-container">
+                    <div id="indonesiaMap"></div>
+                </div>
+
+                <div class="data-and-table-wrapper">
+
+                    <div id="data-header-container">
+                        <h2 id="data-section" class="text-start">Data Saat Ini dan AQI</h2>
+                    </div>
+
+                    <div class="air-quality-table table-responsive">
+                        <table class="table align-middle">
+                            <thead class="table-header-custom">
+                                <tr>
+                                    <th>Wilayah</th>
+                                    <th>Tanggal</th>
+                                    <th>PM 2.5</th>
+                                    <th>Indeks Kualitas Udara (ISPU)</th>
+                                    <th>Prediksi PM2.5 Besok</th>
+                                    <th>Prediksi Indeks Kualitas Udara (ISPU) Besok</th>
+                                    <th>Detail</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($iaqiData as $index => $iaqi)
+                                    <tr>
+                                        <td>
+                                            <span class="d-inline-flex align-items-center">
+                                                <img src="{{ asset('images/regions/' . $iaqi->region->name . '.png') }}"
+                                                    alt="{{ $iaqi->region->name }} Logo" class="city-logo">
+                                                @if ($iaqi->region->city)
+                                                    {{ $iaqi->region->city }}
+                                                @else
+                                                    {{ $iaqi->region->name }}
+                                                @endif
+                                            </span>
+                                        </td>
+                                        <td>{{ \Carbon\Carbon::parse($iaqi->observed_at)->format('Y-m-d') }}</td>
+                                        <td>{{ $iaqi->pm25 }}</td>
+                                        <td>{{ $iaqi->aqi_ispu }} - {{ $iaqi->category_ispu }}</td>
+                                        <td>
+                                            @php
+                                                $predictedRegion = $predictedRegions->firstWhere(
+                                                    'region_id',
+                                                    $iaqi->region_id,
+                                                );
+                                            @endphp
+                                            @if ($predictedRegion)
+                                                {{ $predictedRegion->predicted_pm25 }}
+                                            @else
+                                                Data tidak tersedia
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($predictedRegion)
+                                                {{ $predictedRegion->predicted_ispu }} - {{ $predictedRegion->predicted_category_ispu }}
+                                            @else
+                                                Data tidak tersedia
+                                            @endif
+                                        </td>
+                                        <td><a href="{{ route('region.show', ['region_id' => $iaqi->region_id]) }}" class="btn btn-sm btn-detail">Lihat Detail</a></td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            @endforeach
+
+            </div>
         </div>
-    </div>
+    </main>
 
-    {{-- Bootstrap JS (opsional, untuk komponen interaktif) --}}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <footer class="footer-custom text-center py-3">
+        <p class="mb-0">&copy; 2025 Pemantauan Kualitas Udara. Semua hak dilindungi.</p>
+    </footer>
 
-    {{-- Leaflet JS --}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
+    </script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         function getAQIColor(aqi) {
-            if (aqi <= 50) return 'green';
-            if (aqi <= 100) return 'blue';
-            if (aqi <= 150) return 'yellow';
-            if (aqi <= 200) return 'red';
+            if (aqi == "Baik") return 'green';
+            if (aqi == "Sedang") return 'blue';
+            if (aqi == "Tidak Sehat") return 'yellow';
+            if (aqi == "Sangat Tidak Sehat") return 'red';
             return 'black'; // 201+
         }
 
-        const datas = @json($datas);
-
-        const map = L.map('map', {
+        // Inisialisasi Peta Leaflet
+        const map = L.map('indonesiaMap', {
             center: [-2.5, 118],
             zoom: 5,
-            dragging: false,
-            zoomControl: false,
+            minZoom: 5,
+            dragging: true,
             scrollWheelZoom: false,
             doubleClickZoom: false,
             boxZoom: false,
             keyboard: false,
-            tap: false,
-            touchZoom: false
+            touchZoom: true,
+            zoomControl: false,
+            attributionControl: true
         });
 
+        // Menggunakan tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: 'Peta oleh OpenStreetMap',
             maxZoom: 18
         }).addTo(map);
 
+        const datas = @json($iaqiData);
+
         datas.forEach((data) => {
             const lat = parseFloat(data.latitude);
             const lng = parseFloat(data.longitude);
-            const latest = data.latest_iaqi;
+            const latest = data.aqi_ispu;
 
             if (latest && !isNaN(lat) && !isNaN(lng)) {
-                const pol = latest.dominent_pol;
-                const value = latest[pol] ?? 'N/A';
-
                 const popupContent = `
                     <b>${data.name}${data.city ? ', ' + data.city : ''}</b><br>
-                    Dominan: ${pol?.toUpperCase()}<br>
-                    AQI: ${String(value)}<br>
-                    Lat: ${lat}, Lng: ${lng}
+                    Indeks Kualitas Udara (ISPU): ${String(latest)}<br>
                 `;
 
                 L.circleMarker([lat, lng], {
                         radius: 8,
-                        fillColor: getAQIColor(value),
+                        fillColor: getAQIColor(data.category_ispu),
                         color: '#000',
                         weight: 1,
                         opacity: 1,
@@ -123,6 +178,41 @@
                     })
                     .addTo(map)
                     .bindPopup(popupContent);
+            }
+        });
+
+        // Menetapkan batas pandang (bounds)
+        const southWest = L.latLng(-11, 90),
+            northEast = L.latLng(6, 142);
+        const bounds = L.latLngBounds(southWest, northEast);
+        map.setMaxBounds(bounds);
+        map.fitBounds(bounds);
+
+        // Solusi Mobile: Memicu refresh peta setelah pemuatan atau perubahan ukuran
+        function fixMapBounds() {
+            if (window.innerWidth < 768) {
+                map.setZoom(5.5);
+                map.setMinZoom(5.5);
+            } else {
+                map.setZoom(5);
+                map.setMinZoom(5);
+            }
+            map.fitBounds(bounds);
+        }
+
+        map.on('load', fixMapBounds);
+        window.addEventListener('resize', fixMapBounds);
+        setTimeout(fixMapBounds, 100);
+
+        document.querySelector('.btn-explore-more').addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 20,
+                    behavior: 'smooth'
+                });
             }
         });
     </script>
