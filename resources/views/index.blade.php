@@ -69,27 +69,28 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                {{-- @dd($iaqiData) --}}
                                 @foreach ($iaqiData as $index => $iaqi)
                                     <tr>
                                         <td>
                                             <span class="d-inline-flex align-items-center">
-                                                <img src="{{ asset('images/regions/' . $iaqi->region->name . '.png') }}"
-                                                    alt="{{ $iaqi->region->name }} Logo" class="city-logo">
-                                                @if ($iaqi->region->city)
-                                                    {{ $iaqi->region->city }}
+                                                <img src="{{ asset('images/regions/' . $iaqi['region']['name'] . '.png') }}"
+                                                    alt="{{ $iaqi['region']['name'] }} Logo" class="city-logo">
+                                                @if ($iaqi['region']['city'])
+                                                    {{ $iaqi['region']['city'] }}
                                                 @else
-                                                    {{ $iaqi->region->name }}
+                                                    {{ $iaqi['region']['name'] }}
                                                 @endif
                                             </span>
                                         </td>
-                                        <td>{{ \Carbon\Carbon::parse($iaqi->observed_at)->format('Y-m-d') }}</td>
-                                        <td>{{ $iaqi->pm25 }}</td>
-                                        <td>{{ $iaqi->aqi_ispu }} - {{ $iaqi->category_ispu }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($iaqi['region']['iaqi']['observed_at'])->locale('id')->translatedFormat('j F Y') }}</td>
+                                        <td>{{ $iaqi['region']['iaqi']['pm25'] }}</td>
+                                        <td>{{ number_format($iaqi['region']['iaqi']['aqi_ispu'], 2) }} - {{ $iaqi['region']['iaqi']['category_ispu'] }}</td>
                                         <td>
                                             @php
                                                 $predictedRegion = $predictedRegions->firstWhere(
                                                     'region_id',
-                                                    $iaqi->region_id,
+                                                    $iaqi['region']['id'],
                                                 );
                                             @endphp
                                             @if ($predictedRegion)
@@ -100,12 +101,14 @@
                                         </td>
                                         <td>
                                             @if ($predictedRegion)
-                                                {{ $predictedRegion->predicted_ispu }} - {{ $predictedRegion->predicted_category_ispu }}
+                                                {{ $predictedRegion->predicted_ispu }} -
+                                                {{ $predictedRegion->predicted_category_ispu }}
                                             @else
                                                 Data tidak tersedia
                                             @endif
                                         </td>
-                                        <td><a href="{{ route('region.show', ['region_id' => $iaqi->region_id]) }}" class="btn btn-sm btn-detail">Lihat Detail</a></td>
+                                        <td><a href="{{ route('region.show', ['region_id' => $iaqi['region']['id']]) }}"
+                                                class="btn btn-sm btn-detail">Lihat Detail</a></td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -158,19 +161,19 @@
         const datas = @json($iaqiData);
 
         datas.forEach((data) => {
-            const lat = parseFloat(data.latitude);
-            const lng = parseFloat(data.longitude);
-            const latest = data.aqi_ispu;
+            const lat = parseFloat(data.region.latitude);
+            const lng = parseFloat(data.region.longitude);
+            const latest = data.region.iaqi.aqi_ispu;
 
             if (latest && !isNaN(lat) && !isNaN(lng)) {
                 const popupContent = `
-                    <b>${data.name}${data.city ? ', ' + data.city : ''}</b><br>
+                    <b>${data.region.name}${data.region.city ? ', ' + data.region.city : ''}</b><br>
                     Indeks Kualitas Udara (ISPU): ${String(latest)}<br>
                 `;
 
                 L.circleMarker([lat, lng], {
                         radius: 8,
-                        fillColor: getAQIColor(data.category_ispu),
+                        fillColor: getAQIColor(data.region.iaqi.category_ispu),
                         color: '#000',
                         weight: 1,
                         opacity: 1,

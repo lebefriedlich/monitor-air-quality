@@ -25,7 +25,7 @@ class SyncAirQuality extends Command
             '466c042386905f85eba7eaac7213376b335ccbdf'
         ];
 
-        $allIAQIData = [];
+        $allIAQIData = []; // Initialize the array before the chunk loop
 
         Region::chunk(5, function ($regions) use ($tokens, &$allIAQIData) {
             foreach ($regions as $index => $region) {
@@ -60,7 +60,7 @@ class SyncAirQuality extends Command
                         ->orderBy('observed_at', 'desc')
                         ->first();
 
-                    $allIAQIData[$index] = [
+                    $allIAQIData[] = [ // Append to the array instead of overwriting
                         'region' => [
                             'id'        => $region->id,
                             'name'      => $region->name,
@@ -109,10 +109,6 @@ class SyncAirQuality extends Command
                         // simpan kategori
                         $attributes['category_ispu'] = $this->categoryIspu($aqiIspu);
                         $attributes['category_us']   = $this->categoryUs($aqiUs);
-
-                        if (!mb_check_encoding($attributes['category_ispu'], 'UTF-8')) {
-                            $this->error("Invalid encoding detected.");
-                        }
                     }
 
                     // =========================================================
@@ -126,7 +122,7 @@ class SyncAirQuality extends Command
                         $attributes
                     );
 
-                    $allIAQIData[$index] = [
+                    $allIAQIData[] = [ // Append to the array instead of overwriting
                         'region' => [
                             'id'       => $region->id,
                             'name'     => $region->name,
@@ -152,6 +148,7 @@ class SyncAirQuality extends Command
 
         Log::info('Sinkronisasi data IAQI selesai.');
     }
+
 
     // =========================================================
     // ------------ RUMUS INTERPOLASI LINIER (WAQI) -----------
