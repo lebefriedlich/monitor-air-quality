@@ -19,6 +19,11 @@ class CalculateAqiCategory extends Command
         foreach ($records as $rec) {
             $pm25 = $rec->pm25;
 
+            if (!is_numeric($pm25)) {
+                $this->error("Invalid pm25 value for record ID {$rec->id}. Skipping...");
+                continue; // Skip this record if the pm25 value is invalid
+            }
+
             // Hitung AQI dengan interpolasi
             $aqiIspu = $this->calculateIspu($pm25);
             $aqiUs   = $this->calculateUsAqi($pm25);
