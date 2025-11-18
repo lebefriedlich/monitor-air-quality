@@ -93,9 +93,15 @@ class Index extends Controller
             'cat_us_epa'  => $prediction->predicted_category,
             'ispu'        => $prediction->predicted_ispu,
             'cat_ispu'    => $prediction->predicted_category_ispu,
-            'cv_metrics_svr'      => json_decode($prediction->cv_metrics_svr, true),
-            'cv_metrics_baseline' => json_decode($prediction->cv_metrics_baseline, true),
-            'model_info'          => json_decode($prediction->model_info, true),
+            'cv_metrics_svr' => is_array($prediction->cv_metrics_svr)
+                ? $prediction->cv_metrics_svr
+                : json_decode($prediction->cv_metrics_svr, true),
+            'cv_metrics_baseline' => is_array($prediction->cv_metrics_baseline)
+                ? $prediction->cv_metrics_baseline
+                : json_decode($prediction->cv_metrics_baseline, true),
+            'model_info'          => is_array($prediction->model_info)
+                ? $prediction->model_info
+                : json_decode($prediction->model_info, true),
         ];
 
         // 4. Simpan cache 1 hari

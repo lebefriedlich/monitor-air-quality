@@ -27,7 +27,7 @@ body {
       var(--color-dark-main) 100%
     ),
     linear-gradient(rgba(22, 53, 73, 0.7), rgba(22, 53, 73, 0.9)),
-    url("monitor air quality.jpg");
+    url("../images/monitor\ air\ quality.jpg");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -219,11 +219,6 @@ body {
   margin-right: 10px;
   vertical-align: middle;
   border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.table td:nth-child(3),
-.table th:nth-child(3) {
-  font-weight: bold;
 }
 
 .air-quality-table th {

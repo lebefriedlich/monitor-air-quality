@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
 </head>
 
 <body>
@@ -21,17 +21,17 @@
             <div class="row align-items-center">
                 <div class="col-lg-8 hero-content">
                     <p class="mb-2 fs-5">
-                        <img src="{{ asset('assets/logo-64.png') }}" alt="Logo" class="me-2"
+                        <img src="{{ asset('images/logo-64.png') }}" alt="Logo" class="me-2"
                             style="width:24px; height:24px;">
                         Pemantauan Kualitas Udara
                     </p>
-                    <h1 class="display-4 fw-bold">PEMANTAUAN KUALITAS UDARA<br>NAMA KOTA</h1>
+                    <h1 class="display-4 fw-bold">PEMANTAUAN KUALITAS UDARA {{ mb_strtoupper($iaqi->region->name, 'UTF-8') }}</h1>
                     <p class="lead">Data kualitas udara real-time &copy; BMKG & World Air Quality Index Project.
                         Prediksi kualitas udara 1 hari ke depan dibuat oleh Maulana Haekal Noval Akbar, Universitas
                         Islam Negeri
                         Malang, menggunakan Support Vector Regression (SVR) untuk tujuan akademik/non-profit.</p>
 
-                    <a href="" class="btn btn-back-to-home mt-3 me-2">
+                    <a href="{{ route('index') }}" class="btn btn-back-to-home mt-3 me-2">
                         <i class="bi bi-arrow-left"></i> Kembali ke Halaman Utama
                     </a>
                     <a href="#data-section" class="btn btn-explore-more mt-3">
@@ -39,14 +39,14 @@
                     </a>
                 </div>
                 <div class="col-lg-4">
-                    <img src="Rectangle 2.png" alt="Monitor Air Quality" class="img-fluid">
+                    <img src="{{ asset('images/Rectangle 2.png') }}" alt="Monitor Air Quality" class="img-fluid">
                 </div>
             </div>
         </div>
     </header>
 
     <main>
-        <div class="detail-wrapper">
+        <div class="detail-wrapper" id="data-section">
 
             <!-- Kiri: Column berisi 2 card -->
             <div class="detail-left-column">
@@ -56,23 +56,23 @@
                         <thead>
                             <tr>
                                 <th>Wilayah</th>
+                                <th>Tanggal</th>
                                 <th>PM 2.5</th>
                                 <th>Indeks Kualitas Udara (ISPU)</th>
-                                <th>Tanggal</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>
                                     <span class="detail-area">
-                                        <img src="{{ asset('images/' . $iaqi->region->name . '.png') }}"
+                                        <img src="{{ asset('images/regions/' . $iaqi->region->name . '.png') }}"
                                             alt="{{ $iaqi->region->name }} Logo" class="city-logo">
                                         {{ $iaqi->region->name }}
                                     </span>
+                                    <td>{{ \Carbon\Carbon::parse($iaqi->observed_at)->locale('id')->translatedFormat('j F Y') }}</td>
                                 </td>
                                 <td>{{ $iaqi->pm25 }} µg/m³</td>
-                                <td><strong>{{ $iaqi->aqi_ispu }}</strong></td>
-                                <td>{{ $iaqi->observed_at->toDateString() }}</td>
+                                <td>{{ number_format($iaqi->aqi_ispu, 2) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -82,7 +82,7 @@
                 <div class="detail-left-body card-block">
                     <div class="detail-body-content">
                         <p><strong>Wilayah:</strong> {{ $data['region_name'] }}</p>
-                        <p><strong>Tanggal Prediksi:</strong> {{ $data['date'] }}</p>
+                        <p><strong>Tanggal Prediksi:</strong> {{ \Carbon\Carbon::parse($data['date'])->locale('id')->translatedFormat('j F Y') }}</p>
                         <p><strong>PM2.5:</strong> {{ $data['pm25'] }} µg/m³</p>
                         <p><strong>Indeks Kualitas Udara (US EPA):</strong> {{ $data['aqi_us_epa'] }} —
                             {{ $data['cat_us_epa'] }}</p>
