@@ -233,7 +233,7 @@ body {
 /* Tombol Detail */
 .btn-detail {
   width: 125px;
-  height: 45px;
+  height: 50px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -252,9 +252,9 @@ body {
   border-color: #0d5aa5;
 }
 
-.btn-secondary {
+.btn-secondary-1 {
   width: 125px;
-  height: 45px;
+  height: 50px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -268,7 +268,7 @@ body {
   transition: background-color 0.2s;
 }
 
-.btn-secondary:hover {
+.btn-secondary-1:hover {
   background-color: #5a6268 !important;
   border-color: #5a6268 !important;
 }

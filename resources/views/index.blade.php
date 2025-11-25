@@ -134,7 +134,7 @@
                                                     class="btn btn-sm btn-detail">Lihat Detail</a>
                                             @else
                                                 <a href="{{ route('region.show', ['region_id' => $data['iaqi']['region']['id']]) }}"
-                                                    class="btn btn-sm btn-secondary disabled-link"
+                                                    class="btn btn-sm btn-secondary-1 disabled-link"
                                                     onclick="event.preventDefault(); return false;">Lihat Detail</a>
                                             @endif
                                         </td>
