@@ -24,9 +24,13 @@ class SyncPredictAirQuality extends Command
         $today    = Carbon::now()->toDateString();
         $endpoint = "{$baseUrl}{$path}";
 
-        $regions = Region::whereHas('iaqi')
+        $regions = Region::whereHas('iaqi', function ($query) {
+            $query->where('observed_at', '>=', '2025-08-27')  // Filter iaqi based on observed_at date
+                ->orderBy('observed_at', 'asc');
+        })
             ->with(['iaqi' => function ($q) {
-                $q->orderBy('observed_at', 'asc');
+                $q->where('observed_at', '>=', '2025-08-27')  // Ensure 'observed_at' filter is applied in the 'with' query as well
+                    ->orderBy('observed_at', 'asc');
             }])
             ->get();
 
@@ -51,6 +55,14 @@ class SyncPredictAirQuality extends Command
                 Log::warning("[PredictAQI] Skipped {$region->name}: IAQI empty");
                 continue;
             }
+
+            // Check if the last observed_at date is today
+            $lastObservedAt = Carbon::parse($iaqi->last()->observed_at);  // Convert to Carbon instance
+            if ($lastObservedAt->toDateString() !== Carbon::today()->toDateString()) {
+                Log::warning("[PredictAQI] Skipped {$region->name}: Last observed_at is not today");
+                continue;  // Skip if the last observed_at is not today
+            }
+
 
             // Susun payload sesuai app.py (kolom waktu masuk kandidat: observed_at)
             $payload = [
@@ -160,9 +172,15 @@ class SyncPredictAirQuality extends Command
                     'cat_us_epa'  => $payloadDB['predicted_category'],
                     'ispu'        => $payloadDB['predicted_ispu'],
                     'cat_ispu'    => $payloadDB['predicted_category_ispu'],
-                    'cv_metrics_svr'      => json_decode($payloadDB['cv_metrics_svr'], true),
-                    'cv_metrics_baseline' => json_decode($payloadDB['cv_metrics_baseline'], true),
-                    'model_info'   => json_decode($payloadDB['model_info'], true),
+                    'cv_metrics_svr'      => is_array($payloadDB['cv_metrics_svr'])
+                        ? $payloadDB['cv_metrics_svr']
+                        : json_decode($payloadDB['cv_metrics_svr'], true),
+                    'cv_metrics_baseline' => is_array($payloadDB['cv_metrics_baseline'])
+                        ? $payloadDB['cv_metrics_baseline']
+                        : json_decode($payloadDB['cv_metrics_baseline'], true),
+                    'model_info'   => is_array($payloadDB['model_info'])
+                        ? $payloadDB['model_info']
+                        : json_decode($payloadDB['model_info'], true),
                 ], now()->addDay());
 
                 // (Opsional) ringkas buat cache/UI

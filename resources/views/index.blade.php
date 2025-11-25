@@ -15,7 +15,6 @@
 </head>
 
 <body>
-
     <header class="hero-section">
         <div class="container">
             <div class="row align-items-center">
@@ -69,53 +68,82 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- @dd($iaqiData) --}}
-                                @foreach ($iaqiData as $index => $iaqi)
+                                @php
+                                    // Separate regions with and without data
+                                    $availableData = [];
+                                    $noData = [];
+
+                                    foreach ($iaqiData as $index => $iaqi) {
+                                        $predictedRegions = collect($predictedRegions);
+
+                                        // Now you can safely use firstWhere() on the Collection
+                                        $predictedRegion = $predictedRegions->firstWhere(
+                                            'region_id',
+                                            $iaqi['region']['id'],
+                                        );
+
+                                        if ($predictedRegion) {
+                                            // Push to available data
+                                            $availableData[] = ['iaqi' => $iaqi, 'predictedRegion' => $predictedRegion];
+                                        } else {
+                                            // Push to no data
+                                            $noData[] = ['iaqi' => $iaqi, 'predictedRegion' => null];
+                                        }
+                                    }
+
+                                    // Combine available data first, then no data at the end
+                                    $allData = array_merge($availableData, $noData);
+                                @endphp
+
+                                @foreach ($allData as $data)
                                     <tr>
                                         <td>
                                             <span class="d-inline-flex align-items-center">
-                                                <img src="{{ asset('images/regions/' . $iaqi['region']['name'] . '.png') }}"
-                                                    alt="{{ $iaqi['region']['name'] }} Logo" class="city-logo">
-                                                @if ($iaqi['region']['city'])
-                                                    {{ $iaqi['region']['city'] }}
+                                                <img src="{{ asset('images/regions/' . $data['iaqi']['region']['name'] . '.png') }}"
+                                                    alt="{{ $data['iaqi']['region']['name'] }} Logo" class="city-logo">
+                                                @if ($data['iaqi']['region']['city'])
+                                                    {{ $data['iaqi']['region']['city'] }}
                                                 @else
-                                                    {{ $iaqi['region']['name'] }}
+                                                    {{ $data['iaqi']['region']['name'] }}
                                                 @endif
                                             </span>
                                         </td>
-                                        <td>{{ \Carbon\Carbon::parse($iaqi['region']['iaqi']['observed_at'])->locale('id')->translatedFormat('j F Y') }}</td>
-                                        <td>{{ $iaqi['region']['iaqi']['pm25'] }}</td>
-                                        <td>{{ number_format($iaqi['region']['iaqi']['aqi_ispu'], 2) }} - {{ $iaqi['region']['iaqi']['category_ispu'] }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($data['iaqi']['region']['iaqi']['observed_at'])->locale('id')->translatedFormat('j F Y') }}
+                                        </td>
+                                        <td>{{ $data['iaqi']['region']['iaqi']['pm25'] }}</td>
+                                        <td>{{ number_format($data['iaqi']['region']['iaqi']['aqi_ispu'], 2) }} -
+                                            {{ $data['iaqi']['region']['iaqi']['category_ispu'] }}</td>
                                         <td>
-                                            @php
-                                                $predictedRegion = $predictedRegions->firstWhere(
-                                                    'region_id',
-                                                    $iaqi['region']['id'],
-                                                );
-                                            @endphp
-                                            @if ($predictedRegion)
-                                                {{ $predictedRegion->predicted_pm25 }}
+                                            @if ($data['predictedRegion'])
+                                                {{ $data['predictedRegion']['pm25'] }}
                                             @else
                                                 Data tidak tersedia
                                             @endif
                                         </td>
                                         <td>
-                                            @if ($predictedRegion)
-                                                {{ $predictedRegion->predicted_ispu }} -
-                                                {{ $predictedRegion->predicted_category_ispu }}
+                                            @if ($data['predictedRegion'])
+                                                {{ $data['predictedRegion']['ispu'] }} -
+                                                {{ $data['predictedRegion']['cat_ispu'] }}
                                             @else
                                                 Data tidak tersedia
                                             @endif
                                         </td>
-                                        <td><a href="{{ route('region.show', ['region_id' => $iaqi['region']['id']]) }}"
-                                                class="btn btn-sm btn-detail">Lihat Detail</a></td>
+                                        <td>
+                                            @if ($data['predictedRegion'])
+                                                <a href="{{ route('region.show', ['region_id' => $data['iaqi']['region']['id']]) }}"
+                                                    class="btn btn-sm btn-detail">Lihat Detail</a>
+                                            @else
+                                                <a href="{{ route('region.show', ['region_id' => $data['iaqi']['region']['id']]) }}"
+                                                    class="btn btn-sm btn-secondary disabled-link"
+                                                    onclick="event.preventDefault(); return false;">Lihat Detail</a>
+                                            @endif
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
                 </div>
-
             </div>
         </div>
     </main>
@@ -163,12 +191,13 @@
         datas.forEach((data) => {
             const lat = parseFloat(data.region.latitude);
             const lng = parseFloat(data.region.longitude);
-            const latest = data.region.iaqi.aqi_ispu;
+            const latestNum = parseFloat(data.region.iaqi.aqi_ispu);
+            const latest = isNaN(latestNum) ? null : latestNum.toFixed(2);
 
             if (latest && !isNaN(lat) && !isNaN(lng)) {
                 const popupContent = `
                     <b>${data.region.name}${data.region.city ? ', ' + data.region.city : ''}</b><br>
-                    Indeks Kualitas Udara (ISPU): ${String(latest)}<br>
+                    Indeks Kualitas Udara (ISPU): ${String(latest)} - ${data.region.iaqi.category_ispu}
                 `;
 
                 L.circleMarker([lat, lng], {

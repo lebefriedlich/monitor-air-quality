@@ -59,8 +59,8 @@ body {
 @media (min-width: 1440px) {
   .hero-section .container {
     /* Container Bootstrap default memiliki padding 0.75rem. Ini mensimulasikan padding: 79px 80px */
-    padding-left: 80px;
-    padding-right: 80px;
+    padding-left: 45px;
+    padding-right: 45px;
   }
 }
 
@@ -250,6 +250,32 @@ body {
 .btn-detail:hover {
   background-color: #0d5aa5;
   border-color: #0d5aa5;
+}
+
+.btn-secondary {
+  width: 125px;
+  height: 45px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  background-color: #6c757d !important;
+  border-color: #6c757d !important;
+  color: white;
+  font-weight: 500;
+  font-size: 1rem;
+  border-radius: 10px;
+  transition: background-color 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268 !important;
+  border-color: #5a6268 !important;
+}
+
+.disabled-link {
+    pointer-events: none; /* Prevent click events */
+    text-decoration: none; /* Optionally, remove underline */
 }
 
 /* Mengatur sel terakhir agar tombol berada di tengah */
