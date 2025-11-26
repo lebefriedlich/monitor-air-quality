@@ -146,7 +146,7 @@ class SyncPredictAirQuality extends Command
                     'predicted_pm25'           => isset($pred['predicted_pm25_ugm3']) ? round((float) $pred['predicted_pm25_ugm3'], 2) : null,
                     'predicted_aqi'            => round((float) $pred['predicted_iaqi_pm25'], 2),
                     'predicted_category'       => (string) $pred['predicted_category_us'],
-                    'predicted_ispu'           => isset($pred['predicted_ispu_estimated']) ? (int) $pred['predicted_ispu_estimated'] : null,
+                    'predicted_ispu'           => round((float) $pred['predicted_ispu_estimated'], 2),
                     'predicted_category_ispu'  => $pred['predicted_category_ispu_estimated'] ?? null,
                     'cv_metrics_svr'           => $pred['cv_metrics_svr'] ?? null,
                     'cv_metrics_baseline'      => $pred['cv_metrics_baseline'] ?? null,

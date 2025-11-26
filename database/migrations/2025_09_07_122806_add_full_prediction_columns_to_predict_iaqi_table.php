@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('predicted_category', 100)->change();
 
             // ISPU RI
-            $table->unsignedSmallInteger('predicted_ispu')->nullable()->after('predicted_aqi');
+            $table->decimal('predicted_ispu', 5, 2)->nullable()->after('predicted_aqi');
             $table->string('predicted_category_ispu', 100)->nullable()->after('predicted_ispu');
 
             // Metrics & model info

@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('iaqi', function (Blueprint $table) {
-            $table->integer('aqi_ispu')->nullable()->after('pm25');
+            $table->decimal('aqi_ispu',5,2)->nullable()->after('pm25');
             $table->string('category_ispu')->nullable()->after('aqi_ispu');
-            $table->integer('aqi_us')->nullable()->after('category_ispu');
+            $table->decimal('aqi_us',5,2)->nullable()->after('category_ispu');
             $table->string('category_us')->nullable()->after('aqi_us');
         });
     }
