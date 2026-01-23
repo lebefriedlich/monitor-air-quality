@@ -69,7 +69,7 @@
                             foreach ($iaqiData as $index => $iaqi) {
                                 $forecastRegion = $forecastCollection->firstWhere(
                                     'region_id',
-                                    $iaqi['region']['id'],
+                                    $iaqi['id'],
                                 );
 
                                 if ($forecastRegion) {
@@ -87,14 +87,14 @@
                                 <div class="col-12 col-md-6 col-lg-4">
                                     <div class="card h-100 air-quality-card {{ $data['forecastRegion'] ? 'has-forecast' : 'no-forecast' }}">
                                         <div class="card-header bg-light d-flex align-items-center gap-2">
-                                            <img src="{{ asset('images/regions/' . $data['iaqi']['region']['name'] . '.png') }}"
-                                                alt="{{ $data['iaqi']['region']['name'] }} Logo" class="city-logo" style="width: 32px; height: 32px;">
+                                            <img src="{{ asset('images/regions/' . $data['iaqi']['name'] . '.png') }}"
+                                                alt="{{ $data['iaqi']['name'] }} Logo" class="city-logo" style="width: 32px; height: 32px;">
                                             <div>
                                                 <h6 class="mb-0">
-                                                    @if ($data['iaqi']['region']['city'])
-                                                        {{ $data['iaqi']['region']['city'] }}
+                                                    @if ($data['iaqi']['city'])
+                                                        {{ $data['iaqi']['city'] }}
                                                     @else
-                                                        {{ $data['iaqi']['region']['name'] }}
+                                                        {{ $data['iaqi']['name'] }}
                                                     @endif
                                                 </h6>
                                                 <small class="text-muted">{{ \Carbon\Carbon::parse($data['iaqi']['observed_at'])->locale('id')->translatedFormat('j F Y H:i') }}</small>
@@ -156,7 +156,7 @@
 
                                         <div class="card-footer">
                                             @if ($data['forecastRegion'])
-                                                <a href="{{ route('region.show', ['region_id' => $data['iaqi']['region']['id']]) }}"
+                                                <a href="{{ route('region.show', ['region_id' => $data['iaqi']['id']]) }}"
                                                     class="btn btn-sm btn-detail w-100">Lihat Detail</a>
                                             @else
                                                 <button class="btn btn-sm btn-secondary-1 w-100" disabled>Lihat Detail</button>
