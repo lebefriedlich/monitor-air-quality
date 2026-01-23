@@ -48,11 +48,17 @@ class SyncForecastAirQuality extends Command
             // Unikkan per timestamp
             $iaqi = $region->iaqi->unique('observed_at')->values();
 
-            Log::info('[ForecastAQI] Sending region payload', [
-                'region_id' => $region->id,
-                'name'      => $region->name,
-                'records'   => $iaqi->count(),
-            ]);
+            if ($iaqi->isNotEmpty()) {
+                $minDate = $iaqi->min('observed_at');
+                $maxDate = $iaqi->max('observed_at');
+                Log::info('[ForecastAQI] Data range for region', [
+                    'region_id'  => $region->id,
+                    'region_name' => $region->name,
+                    'start_date' => Carbon::parse($minDate)->format('Y-m-d H:i:s'),
+                    'end_date'   => Carbon::parse($maxDate)->format('Y-m-d H:i:s'),
+                    'records'    => $iaqi->count(),
+                ]);
+            }
 
             if ($iaqi->isEmpty()) {
                 Log::warning("[ForecastAQI] Skipped {$region->name}: IAQI empty");
