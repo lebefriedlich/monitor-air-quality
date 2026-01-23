@@ -104,9 +104,10 @@ class SyncForecastAirQuality extends Command
                     ->post($endpoint, $payload);
 
                 if (!$response->successful()) {
-                    Log::error("[ForecastAQI] API failed for {$region->name}", [
+                    Log::error("[ForecastAQI] HTTP {$response->status()} error while syncing {$region->name}", [
                         'status' => $response->status(),
                         'body'   => $response->body(),
+                        'request_payload' => json_encode($payload),
                     ]);
                     continue;
                 }
@@ -202,7 +203,10 @@ class SyncForecastAirQuality extends Command
                 Log::info("Forecast sync completed for region {$region->name}.");
             } catch (\Throwable $e) {
                 Log::error("[ForecastAQI] Exception while syncing {$region->name}", [
-                    'error' => $e->getMessage(),
+                    'error'        => $e->getMessage(),
+                    'exception'    => get_class($e),
+                    'trace'        => $e->getTraceAsString(),
+                    'request_payload' => json_encode($payload),
                 ]);
                 // lanjut region lain
             }
