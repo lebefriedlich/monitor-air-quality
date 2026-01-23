@@ -26,11 +26,11 @@
                     </p>
                     <h1 class="display-4 fw-bold">PEMANTAUAN KUALITAS UDARA</h1>
                     <p class="lead">Data kualitas udara real-time &copy; BMKG & World Air Quality Index Project.
-                        Prediksi kualitas udara 1 hari ke depan dibuat oleh Maulana Haekal Noval Akbar, Universitas
+                        Peramalan kualitas udara 1 hari ke depan dibuat oleh Maulana Haekal Noval Akbar, Universitas
                         Islam Negeri
                         Malang, menggunakan Support Vector Regression (SVR) untuk tujuan akademik/non-profit.</p>
 
-                    <a href="#data-section" class="btn btn-explore-more mt-3">
+                    <a href="#map-section" class="btn btn-explore-more mt-3">
                         Jelajahi Lebih Lanjut <i class="bi bi-arrow-down"></i>
                     </a>
                 </div>
@@ -41,107 +41,131 @@
     </header>
 
     <main>
-        <div class="main-content-wrapper">
+        <div class="main-content-wrapper" id="map-section">
             <div class="main-flex-section">
-
                 <div class="map-container">
                     <div id="indonesiaMap"></div>
                 </div>
+            </div>
+        </section>
 
+        <!-- Data Section -->
+        <section class="data-section">
+            <div class="main-content-wrapper">
                 <div class="data-and-table-wrapper">
 
-                    <div id="data-header-container">
-                        <h2 id="data-section" class="text-start">Data Saat Ini dan AQI</h2>
-                    </div>
+                    <div class="air-quality-cards">
+                        @php
+                            $forecastCollection = collect($forecastRegions);
+                            $forecastDateRaw = data_get($forecastCollection->first(), 'date');
+                            $forecastDateText = $forecastDateRaw
+                                ? \Carbon\Carbon::parse($forecastDateRaw)->locale('id')->translatedFormat('j F Y')
+                                : null;
 
-                    <div class="air-quality-table table-responsive">
-                        <table class="table align-middle">
-                            <thead class="table-header-custom">
-                                <tr>
-                                    <th>Wilayah</th>
-                                    <th>Tanggal</th>
-                                    <th>PM 2.5</th>
-                                    <th>Indeks Kualitas Udara (ISPU)</th>
-                                    <th>Prediksi PM2.5 Besok</th>
-                                    <th>Prediksi Indeks Kualitas Udara (ISPU) Besok</th>
-                                    <th>Detail</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php
-                                    // Separate regions with and without data
-                                    $availableData = [];
-                                    $noData = [];
+                            // Separate regions with and without data
+                            $availableData = [];
+                            $noData = [];
 
-                                    foreach ($iaqiData as $index => $iaqi) {
-                                        $predictedRegions = collect($predictedRegions);
+                            foreach ($iaqiData as $index => $iaqi) {
+                                $forecastRegion = $forecastCollection->firstWhere(
+                                    'region_id',
+                                    $iaqi['region']['id'],
+                                );
 
-                                        // Now you can safely use firstWhere() on the Collection
-                                        $predictedRegion = $predictedRegions->firstWhere(
-                                            'region_id',
-                                            $iaqi['region']['id'],
-                                        );
+                                if ($forecastRegion) {
+                                    $availableData[] = ['iaqi' => $iaqi, 'forecastRegion' => $forecastRegion];
+                                } else {
+                                    $noData[] = ['iaqi' => $iaqi, 'forecastRegion' => null];
+                                }
+                            }
 
-                                        if ($predictedRegion) {
-                                            // Push to available data
-                                            $availableData[] = ['iaqi' => $iaqi, 'predictedRegion' => $predictedRegion];
-                                        } else {
-                                            // Push to no data
-                                            $noData[] = ['iaqi' => $iaqi, 'predictedRegion' => null];
-                                        }
-                                    }
+                            $allData = array_merge($availableData, $noData);
+                        @endphp
 
-                                    // Combine available data first, then no data at the end
-                                    $allData = array_merge($availableData, $noData);
-                                @endphp
+                        <div class="row g-3">
+                            @foreach ($allData as $data)
+                                <div class="col-12 col-md-6 col-lg-4">
+                                    <div class="card h-100 air-quality-card {{ $data['forecastRegion'] ? 'has-forecast' : 'no-forecast' }}">
+                                        <div class="card-header bg-light d-flex align-items-center gap-2">
+                                            <img src="{{ asset('images/regions/' . $data['iaqi']['region']['name'] . '.png') }}"
+                                                alt="{{ $data['iaqi']['region']['name'] }} Logo" class="city-logo" style="width: 32px; height: 32px;">
+                                            <div>
+                                                <h6 class="mb-0">
+                                                    @if ($data['iaqi']['region']['city'])
+                                                        {{ $data['iaqi']['region']['city'] }}
+                                                    @else
+                                                        {{ $data['iaqi']['region']['name'] }}
+                                                    @endif
+                                                </h6>
+                                                <small class="text-muted">{{ \Carbon\Carbon::parse($data['iaqi']['observed_at'])->locale('id')->translatedFormat('j F Y H:i') }}</small>
+                                            </div>
+                                        </div>
 
-                                @foreach ($allData as $data)
-                                    <tr>
-                                        <td>
-                                            <span class="d-inline-flex align-items-center">
-                                                <img src="{{ asset('images/regions/' . $data['iaqi']['region']['name'] . '.png') }}"
-                                                    alt="{{ $data['iaqi']['region']['name'] }} Logo" class="city-logo">
-                                                @if ($data['iaqi']['region']['city'])
-                                                    {{ $data['iaqi']['region']['city'] }}
+                                        <div class="card-body">
+                                            <!-- Data Observasi -->
+                                            <div class="mb-3">
+                                                <p class="mb-2 text-muted small">DATA OBSERVASI</p>
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <div>
+                                                            <small class="text-muted">PM 2.5</small>
+                                                            <p class="fs-5 fw-bold mb-0">{{ $data['iaqi']['pm25'] }} μg/m³</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div>
+                                                            <small class="text-muted">ISPU</small>
+                                                            <p class="fs-5 fw-bold mb-0">{{ number_format($data['iaqi']['aqi_ispu'], 0) }}</p>
+                                                            <small>{{ $data['iaqi']['category_ispu'] }}</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <hr class="my-2">
+
+                                            <!-- Data Peramalan -->
+                                            <div>
+                                                <p class="mb-2 text-muted small">
+                                                    PERAMALAN
+                                                    @if ($forecastDateText)
+                                                        <span class="badge bg-info ms-2">{{ $forecastDateText }}</span>
+                                                    @endif
+                                                </p>
+                                                @if ($data['forecastRegion'])
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <div>
+                                                                <small class="text-muted">PM 2.5</small>
+                                                                <p class="fs-5 fw-bold mb-0">{{ $data['forecastRegion']['forecast_pm25'] }} μg/m³</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <div>
+                                                                <small class="text-muted">ISPU</small>
+                                                                <p class="fs-5 fw-bold mb-0">{{ $data['forecastRegion']['forecast_ispu'] }}</p>
+                                                                <small>{{ $data['forecastRegion']['forecast_category_ispu'] }}</small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 @else
-                                                    {{ $data['iaqi']['region']['name'] }}
+                                                    <p class="text-muted mb-0"><em>Belum ada data peramalan</em></p>
                                                 @endif
-                                            </span>
-                                        </td>
-                                        <td>{{ \Carbon\Carbon::parse($data['iaqi']['region']['iaqi']['observed_at'])->locale('id')->translatedFormat('j F Y') }}
-                                        </td>
-                                        <td>{{ $data['iaqi']['region']['iaqi']['pm25'] }}</td>
-                                        <td>{{ number_format($data['iaqi']['region']['iaqi']['aqi_ispu'], 2) }} -
-                                            {{ $data['iaqi']['region']['iaqi']['category_ispu'] }}</td>
-                                        <td>
-                                            @if ($data['predictedRegion'])
-                                                {{ $data['predictedRegion']['pm25'] }}
-                                            @else
-                                                Data tidak tersedia
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if ($data['predictedRegion'])
-                                                {{ $data['predictedRegion']['ispu'] }} -
-                                                {{ $data['predictedRegion']['cat_ispu'] }}
-                                            @else
-                                                Data tidak tersedia
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if ($data['predictedRegion'])
+                                            </div>
+                                        </div>
+
+                                        <div class="card-footer">
+                                            @if ($data['forecastRegion'])
                                                 <a href="{{ route('region.show', ['region_id' => $data['iaqi']['region']['id']]) }}"
-                                                    class="btn btn-sm btn-detail">Lihat Detail</a>
+                                                    class="btn btn-sm btn-detail w-100">Lihat Detail</a>
                                             @else
-                                                <a href="{{ route('region.show', ['region_id' => $data['iaqi']['region']['id']]) }}"
-                                                    class="btn btn-sm btn-secondary-1 disabled-link"
-                                                    onclick="event.preventDefault(); return false;">Lihat Detail</a>
+                                                <button class="btn btn-sm btn-secondary-1 w-100" disabled>Lihat Detail</button>
                                             @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
             </div>
@@ -187,22 +211,22 @@
         }).addTo(map);
 
         const datas = @json($iaqiData);
-
+        
         datas.forEach((data) => {
             const lat = parseFloat(data.region.latitude);
             const lng = parseFloat(data.region.longitude);
-            const latestNum = parseFloat(data.region.iaqi.aqi_ispu);
+            const latestNum = parseFloat(data.aqi_ispu);
             const latest = isNaN(latestNum) ? null : latestNum.toFixed(2);
 
             if (latest && !isNaN(lat) && !isNaN(lng)) {
                 const popupContent = `
                     <b>${data.region.name}${data.region.city ? ', ' + data.region.city : ''}</b><br>
-                    Indeks Kualitas Udara (ISPU): ${String(latest)} - ${data.region.iaqi.category_ispu}
+                    Indeks Kualitas Udara (ISPU): ${String(latest)} - ${data.category_ispu}
                 `;
 
                 L.circleMarker([lat, lng], {
                         radius: 8,
-                        fillColor: getAQIColor(data.region.iaqi.category_ispu),
+                        fillColor: getAQIColor(data.category_ispu),
                         color: '#000',
                         weight: 1,
                         opacity: 1,

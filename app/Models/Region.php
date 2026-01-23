@@ -31,9 +31,9 @@ class Region extends Model
         return $this->hasMany(IAQI::class, 'region_id', 'id');
     }
 
-    public function predictIaqi()
+    public function forecastIaqi()
     {
-        return $this->hasMany(PredictIAQI::class, 'region_id', 'id');
+        return $this->hasMany(ForecastIAQI::class, 'region_id', 'id');
     }
 
     public function latestIaqi()

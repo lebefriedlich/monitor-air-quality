@@ -27,7 +27,7 @@
                     </p>
                     <h1 class="display-4 fw-bold">PEMANTAUAN KUALITAS UDARA {{ mb_strtoupper($iaqi->region->name, 'UTF-8') }}</h1>
                     <p class="lead">Data kualitas udara real-time &copy; BMKG & World Air Quality Index Project.
-                        Prediksi kualitas udara 1 hari ke depan dibuat oleh Maulana Haekal Noval Akbar, Universitas
+                        Peramalan kualitas udara 1 hari ke depan dibuat oleh Maulana Haekal Noval Akbar, Universitas
                         Islam Negeri
                         Malang, menggunakan Support Vector Regression (SVR) untuk tujuan akademik/non-profit.</p>
 
@@ -58,7 +58,7 @@
                                 <th>Wilayah</th>
                                 <th>Tanggal</th>
                                 <th>PM 2.5</th>
-                                <th>Indeks Kualitas Udara (ISPU)</th>
+                                <th>Indeks Standar Pencemar Udara (ISPU)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -67,12 +67,16 @@
                                     <span class="detail-area">
                                         <img src="{{ asset('images/regions/' . $iaqi->region->name . '.png') }}"
                                             alt="{{ $iaqi->region->name }} Logo" class="city-logo">
-                                        {{ $iaqi->region->name }}
+                                        @if ($iaqi->region->city)
+                                            {{ $iaqi->region->city }}
+                                        @else
+                                            {{ $iaqi->region->name }}
+                                        @endif
                                     </span>
-                                    <td>{{ \Carbon\Carbon::parse($iaqi->observed_at)->locale('id')->translatedFormat('j F Y') }}</td>
                                 </td>
+                                <td>{{ \Carbon\Carbon::parse($iaqi->observed_at)->locale('id')->translatedFormat('j F Y H:i') }}</td>
                                 <td>{{ $iaqi->pm25 }} µg/m³</td>
-                                <td>{{ number_format($iaqi->aqi_ispu, 2) }}</td>
+                                <td>{{ number_format($iaqi->aqi_ispu, 2) }} <br><small>{{ $iaqi->category_ispu }}</small></td>
                             </tr>
                         </tbody>
                     </table>
@@ -82,8 +86,8 @@
                 <div class="detail-left-body card-block">
                     <div class="detail-body-content">
                         <p><strong>Wilayah:</strong> {{ $data['region_name'] }}</p>
-                        <p><strong>Tanggal Prediksi:</strong> {{ \Carbon\Carbon::parse($data['date'])->locale('id')->translatedFormat('j F Y') }}</p>
-                        <p><strong>PM2.5:</strong> {{ $data['pm25'] }} µg/m³</p>
+                        <p><strong>Tanggal Peramalan:</strong> {{ \Carbon\Carbon::parse($data['date'])->locale('id')->translatedFormat('j F Y') }}</p>
+                        <p><strong>PM 2.5:</strong> {{ $data['pm25'] }} µg/m³</p>
                         <p><strong>Indeks Kualitas Udara (US EPA):</strong> {{ $data['aqi_us_epa'] }} —
                             {{ $data['cat_us_epa'] }}</p>
                         <p><strong>ISPU (RI):</strong> {{ $data['ispu'] }} — {{ $data['cat_ispu'] }}</p>

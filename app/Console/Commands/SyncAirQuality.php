@@ -122,16 +122,14 @@ class SyncAirQuality extends Command
                         $attributes
                     );
 
-                    $allIAQIData[] = [ // Append to the array instead of overwriting
-                        'region' => [
-                            'id'       => $region->id,
-                            'name'     => $region->name,
-                            'city'     => $region->city,
-                            'latitude' => $region->latitude,
-                            'longitude' => $region->longitude,
-                            'url'      => $region->url,
-                            'iaqi'     => $record->toArray(),
-                        ]
+                    $allIAQIData[] = [
+                        'id'       => $region->id,
+                        'name'     => $region->name,
+                        'city'     => $region->city,
+                        'latitude' => $region->latitude,
+                        'longitude' => $region->longitude,
+                        'url'      => $region->url,
+                        'iaqi'     => $record->toArray(),
                     ];
 
                     DB::disconnect();

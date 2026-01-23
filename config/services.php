@@ -35,5 +35,6 @@ return [
         ],
     ],
 
+    'api_base_url' => env('API_BASE_URL', 'http://example.com/api'),
     'api_key' => env('API_KEY', 'default-key'),
 ];

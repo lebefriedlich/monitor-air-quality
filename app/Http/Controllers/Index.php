@@ -3,47 +3,33 @@
 namespace App\Http\Controllers;
 
 use App\Models\IAQI;
-use App\Models\PredictIAQI;
+use App\Models\ForecastIAQI;
 use App\Models\Region;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 
 class Index extends Controller
 {
     public function index()
     {
-        // $datas = Region::with('latestIAQI')
-        //     ->whereNotNull('latitude')
-        //     ->whereNotNull('longitude')
-        //     ->get()
-        //     ->filter(function ($region) {
-        //         return $region->latestIAQI !== null;
-        //     })
-        //     ->values(); // Reset index agar bisa dibaca dengan baik di JSON
-
-        // Mengambil data IAQI dari cache atau database
         $iaqiData = Cache::get('iaqi_data_all_regions');
 
-        // Jika data tidak ada di cache, ambil dari database
         if (!$iaqiData) {
-            $iaqiData = IAQI::with('region')->get(); // Mengambil semua data IAQI dan terkait dengan Region
-            // Menyimpan data di cache agar tidak perlu mengambil dari database lagi di waktu berikutnya
-            Cache::put('iaqi_data_all_regions', $iaqiData, 3600); // Cache selama 1 jam
+            $iaqiData = IAQI::with('region')
+                // ->whereDate('observed_at', '2026-01-03')
+                ->orderBy('region_id', 'asc')
+                ->get();
+
+            Cache::put('iaqi_data_all_regions', $iaqiData, 3600);
         }
 
-        // Mengambil data prediksi IAQI dari cache atau database
-        $predictedRegions = Cache::get('predicted_regions');
+        $forecastRegions = Cache::get('forecast_regions');
 
-        // Jika data tidak ada di cache, ambil dari database
-        if (!$predictedRegions) {
-            $predictedRegions = PredictIAQI::with('region')->get(); // Mengambil semua data prediksi IAQI dan terkait dengan Region
-            // Menyimpan data di cache agar tidak perlu mengambil dari database lagi di waktu berikutnya
-            Cache::put('predicted_regions', $predictedRegions, 86400); // Cache selama 24 jam
+        if (!$forecastRegions) {
+            $forecastRegions = ForecastIAQI::with('region')->get();
+            Cache::put('forecast_regions', $forecastRegions, 86400);
         }
 
-        // Menggabungkan kedua data dari cache atau database untuk ditampilkan di halaman
-        return view('index', compact('iaqiData', 'predictedRegions'));
+        return view('index', compact('iaqiData', 'forecastRegions'));
     }
 
     public function show($region_id)
@@ -54,15 +40,14 @@ class Index extends Controller
         }
 
         $iaqi = IAQI::where('region_id', $region_id)
-            ->orderBy('observed_at', 'desc')
+            // ->whereDate('observed_at', '2026-01-03')
             ->first();
         if (!$iaqi) {
             return redirect()->back()->with('error', 'Data IAQI tidak ditemukan untuk wilayah ini');
         }
 
-        $cacheKey = "predicted_region_{$region_id}";
+        $cacheKey = "forecast_region_{$region_id}";
 
-        // 1. Cek cache
         if (Cache::has($cacheKey)) {
             $data = Cache::get($cacheKey);
 
@@ -73,39 +58,36 @@ class Index extends Controller
             ]);
         }
 
-        // 2. Ambil data prediksi berdasarkan region_id
-        $prediction = PredictIAQI::with('region')
+        $forecast = ForecastIAQI::with('region')
             ->where('region_id', $region_id)
             ->first();
 
-        if (!$prediction) {
-            // Bisa redirect atau tampilkan halaman khusus
-            return redirect()->back()->with('error', 'Data prediksi tidak ditemukan');
+        if (!$forecast) {
+            return redirect()->back()->with('error', 'Data peramalan tidak ditemukan');
         }
 
-        // 3. Format data untuk dikirim ke view
         $data = [
-            'region_id'   => $prediction->region_id,
-            'region_name' => $prediction->region->name ?? null,
-            'date'        => optional($prediction->date)->toDateString(),
-            'pm25'        => $prediction->predicted_pm25,
-            'aqi_us_epa'  => $prediction->predicted_aqi,
-            'cat_us_epa'  => $prediction->predicted_category,
-            'ispu'        => $prediction->predicted_ispu,
-            'cat_ispu'    => $prediction->predicted_category_ispu,
-            'cv_metrics_svr' => is_array($prediction->cv_metrics_svr)
-                ? $prediction->cv_metrics_svr
-                : json_decode($prediction->cv_metrics_svr, true),
-            'cv_metrics_baseline' => is_array($prediction->cv_metrics_baseline)
-                ? $prediction->cv_metrics_baseline
-                : json_decode($prediction->cv_metrics_baseline, true),
-            'model_info'          => is_array($prediction->model_info)
-                ? $prediction->model_info
-                : json_decode($prediction->model_info, true),
+            'region_id'   => $forecast->region_id,
+            'region_name' => $forecast->region->name ?? null,
+            'date'        => optional($forecast->date)->toDateString(),
+            'pm25'        => $forecast->forecast_pm25,
+            'aqi_us_epa'  => $forecast->forecast_aqi,
+            'cat_us_epa'  => $forecast->forecast_category,
+            'ispu'        => $forecast->forecast_ispu,
+            'cat_ispu'    => $forecast->forecast_category_ispu,
+            'cv_metrics_svr' => is_array($forecast->cv_metrics_svr)
+                ? $forecast->cv_metrics_svr
+                : json_decode($forecast->cv_metrics_svr, true),
+            'cv_metrics_baseline' => is_array($forecast->cv_metrics_baseline)
+                ? $forecast->cv_metrics_baseline
+                : json_decode($forecast->cv_metrics_baseline, true),
+            'model_info'          => is_array($forecast->model_info)
+                ? $forecast->model_info
+                : json_decode($forecast->model_info, true),
         ];
 
-        // 4. Simpan cache 1 hari
-        Cache::put($cacheKey, $data, now()->addDay());
+        // 4. Simpan cache permanent
+        Cache::forever($cacheKey, $data);
 
         // 5. Kirim ke view
         return view('detail', [
