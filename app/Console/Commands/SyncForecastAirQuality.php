@@ -159,7 +159,7 @@ class SyncForecastAirQuality extends Command
                 $cacheKey = "forecast_region_{$region->id}";
 
                 Cache::forget($cacheKey);
-                Cache::forever($cacheKey, [
+                Cache::put($cacheKey, [
                     'region_id'   => $region->id,
                     'region_name' => $region->name,
                     'date'        => $date->toDateString(),
@@ -177,13 +177,13 @@ class SyncForecastAirQuality extends Command
                     'model_info'   => is_array($payloadDB['model_info'])
                         ? $payloadDB['model_info']
                         : json_decode($payloadDB['model_info'], true),
-                ]);
+                ], 86400);
 
                 $forecastRegions[] = [
                     'region_id'   => $region->id,
                     'region_name' => $region->name,
                     'date'        => $date->toDateString(),
-                    'pm25'        => $payloadDB['forecast_pm25'],
+                    'forecast_pm25'        => $payloadDB['forecast_pm25'],
                     'forecast_aqi'  => $payloadDB['forecast_aqi'],
                     'forecast_category'  => $payloadDB['forecast_category'],
                     'forecast_ispu'        => $payloadDB['forecast_ispu'],

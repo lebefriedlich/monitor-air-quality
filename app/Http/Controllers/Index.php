@@ -38,7 +38,26 @@ class Index extends Controller
         $forecastRegions = Cache::get('forecast_regions');
 
         if (!$forecastRegions) {
-            $forecastRegions = ForecastIAQI::with('region')->get();
+            $forecastRegions = ForecastIAQI::with('region')
+                ->get()
+                ->map(function ($forecast) {
+                    return [
+                        'region_id'             => $forecast->region_id,
+                        'region_name'           => $forecast->region->name ?? null,
+                        'date'                  => optional($forecast->date)->toDateString(),
+                        'forecast_pm25'         => $forecast->forecast_pm25,
+                        'forecast_aqi'          => $forecast->forecast_aqi,
+                        'forecast_category'     => $forecast->forecast_category,
+                        'forecast_ispu'         => $forecast->forecast_ispu,
+                        'forecast_category_ispu'=> $forecast->forecast_category_ispu,
+                        'cv_metrics_svr'        => $forecast->cv_metrics_svr,
+                        'cv_metrics_baseline'   => $forecast->cv_metrics_baseline,
+                        'model_info'            => $forecast->model_info,
+                    ];
+                })
+                ->values()
+                ->all();
+
             Cache::put('forecast_regions', $forecastRegions, 86400);
         }
 
@@ -102,7 +121,7 @@ class Index extends Controller
         ];
 
         // 4. Simpan cache permanent
-        Cache::forever($cacheKey, $data);
+        Cache::put($cacheKey, $data, 86400);
 
         // 5. Kirim ke view
         return view('detail', [
