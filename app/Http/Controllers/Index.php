@@ -14,10 +14,23 @@ class Index extends Controller
         $iaqiData = Cache::get('iaqi_data_all_regions');
 
         if (!$iaqiData) {
-            $iaqiData = IAQI::with('region')
-                // ->whereDate('observed_at', '2026-01-03')
-                ->orderBy('region_id', 'asc')
-                ->get();
+            $iaqiData = Region::with('latestIaqi')
+                ->orderBy('id', 'asc')
+                ->get()
+                ->map(function ($region) {
+                    return [
+                        'id'        => $region->id,
+                        'name'      => $region->name,
+                        'city'      => $region->city,
+                        'latitude'  => $region->latitude,
+                        'longitude' => $region->longitude,
+                        'url'       => $region->url,
+                        'iaqi'      => $region->latestIaqi ? $region->latestIaqi->toArray() : null,
+                        'status'    => $region->latestIaqi ? 'database' : 'no-data',
+                    ];
+                })
+                ->values()
+                ->all();
 
             Cache::put('iaqi_data_all_regions', $iaqiData, 3600);
         }
