@@ -97,7 +97,7 @@
                                                         {{ $data['iaqi']['name'] }}
                                                     @endif
                                                 </h6>
-                                                <small class="text-muted">{{ \Carbon\Carbon::parse($data['iaqi']['observed_at'])->locale('id')->translatedFormat('j F Y H:i') }}</small>
+                                                <small class="text-muted">{{ \Carbon\Carbon::parse($data['iaqi']['iaqi']['observed_at'])->locale('id')->translatedFormat('j F Y H:i') }}</small>
                                             </div>
                                         </div>
 
@@ -109,14 +109,14 @@
                                                     <div class="col-6">
                                                         <div>
                                                             <small class="text-muted">PM 2.5</small>
-                                                            <p class="fs-5 fw-bold mb-0">{{ $data['iaqi']['pm25'] }} μg/m³</p>
+                                                            <p class="fs-5 fw-bold mb-0">{{ $data['iaqi']['iaqi']['pm25'] }} μg/m³</p>
                                                         </div>
                                                     </div>
                                                     <div class="col-6">
                                                         <div>
                                                             <small class="text-muted">ISPU</small>
-                                                            <p class="fs-5 fw-bold mb-0">{{ number_format($data['iaqi']['aqi_ispu'], 0) }}</p>
-                                                            <small>{{ $data['iaqi']['category_ispu'] }}</small>
+                                                            <p class="fs-5 fw-bold mb-0">{{ number_format($data['iaqi']['iaqi']['aqi_ispu'], 0) }}</p>
+                                                            <small>{{ $data['iaqi']['iaqi']['category_ispu'] }}</small>
                                                         </div>
                                                     </div>
                                                 </div>
