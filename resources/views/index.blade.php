@@ -25,7 +25,7 @@
                         Pemantauan Kualitas Udara
                     </p>
                     <h1 class="display-4 fw-bold">PEMANTAUAN KUALITAS UDARA</h1>
-                    <p class="lead">Data kualitas udara real-time &copy; BMKG & World Air Quality Index Project.
+                    <p class="lead">Data kualitas udara &copy; BMKG & World Air Quality Index Project.
                         Peramalan kualitas udara 1 hari ke depan dibuat oleh Maulana Haekal Noval Akbar, Universitas
                         Islam Negeri
                         Malang, menggunakan Support Vector Regression (SVR) untuk tujuan akademik/non-profit.</p>
@@ -156,7 +156,7 @@
 
                                         <div class="card-footer">
                                             @if ($data['forecastRegion'])
-                                                <a href="{{ route('region.show', ['region_id' => $data['iaqi']['id']]) }}"
+                                                <a href="{{ route('region.show', ['region_id' => $data['iaqi']['name']]) }}"
                                                     class="btn btn-sm btn-detail w-100">Lihat Detail</a>
                                             @else
                                                 <button class="btn btn-sm btn-secondary-1 w-100" disabled>Lihat Detail</button>
@@ -213,20 +213,20 @@
         const datas = @json($iaqiData);
         
         datas.forEach((data) => {
-            const lat = parseFloat(data.region.latitude);
-            const lng = parseFloat(data.region.longitude);
-            const latestNum = parseFloat(data.aqi_ispu);
+            const lat = parseFloat(data.latitude);
+            const lng = parseFloat(data.longitude);
+            const latestNum = parseFloat(data.iaqi.aqi_ispu);
             const latest = isNaN(latestNum) ? null : latestNum.toFixed(2);
 
             if (latest && !isNaN(lat) && !isNaN(lng)) {
                 const popupContent = `
-                    <b>${data.region.name}${data.region.city ? ', ' + data.region.city : ''}</b><br>
-                    Indeks Kualitas Udara (ISPU): ${String(latest)} - ${data.category_ispu}
+                    <b>${data.name}${data.city ? ', ' + data.city : ''}</b><br>
+                    Indeks Kualitas Udara (ISPU): ${String(latest)} - ${data.iaqi.category_ispu}
                 `;
 
                 L.circleMarker([lat, lng], {
                         radius: 8,
-                        fillColor: getAQIColor(data.category_ispu),
+                        fillColor: getAQIColor(data.iaqi.category_ispu),
                         color: '#000',
                         weight: 1,
                         opacity: 1,

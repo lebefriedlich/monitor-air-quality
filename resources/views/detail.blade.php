@@ -25,8 +25,9 @@
                             style="width:24px; height:24px;">
                         Pemantauan Kualitas Udara
                     </p>
-                    <h1 class="display-4 fw-bold">PEMANTAUAN KUALITAS UDARA {{ mb_strtoupper($iaqi->region->name, 'UTF-8') }}</h1>
-                    <p class="lead">Data kualitas udara real-time &copy; BMKG & World Air Quality Index Project.
+                    <h1 class="display-4 fw-bold">PEMANTAUAN KUALITAS UDARA
+                        {{ mb_strtoupper($iaqi->region->name, 'UTF-8') }}</h1>
+                    <p class="lead">Data kualitas udara &copy; BMKG & World Air Quality Index Project.
                         Peramalan kualitas udara 1 hari ke depan dibuat oleh Maulana Haekal Noval Akbar, Universitas
                         Islam Negeri
                         Malang, menggunakan Support Vector Regression (SVR) untuk tujuan akademik/non-profit.</p>
@@ -48,62 +49,110 @@
     <main>
         <div class="detail-wrapper" id="data-section">
 
-            <!-- Kiri: Column berisi 2 card -->
+            <!-- Kiri: Column berisi card dengan observasi dan peramalan -->
             <div class="detail-left-column">
-                <!-- Card 1 -->
-                <div class="detail-left-header card-block">
-                    <table class="table detail-table align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th>Wilayah</th>
-                                <th>Tanggal</th>
-                                <th>PM 2.5</th>
-                                <th>Indeks Standar Pencemar Udara (ISPU)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <span class="detail-area">
-                                        <img src="{{ asset('images/regions/' . $iaqi->region->name . '.png') }}"
-                                            alt="{{ $iaqi->region->name }} Logo" class="city-logo">
-                                        @if ($iaqi->region->city)
-                                            {{ $iaqi->region->city }}
-                                        @else
-                                            {{ $iaqi->region->name }}
-                                        @endif
-                                    </span>
-                                </td>
-                                <td>{{ \Carbon\Carbon::parse($iaqi->observed_at)->locale('id')->translatedFormat('j F Y H:i') }}</td>
-                                <td>{{ $iaqi->pm25 }} µg/m³</td>
-                                <td>{{ number_format($iaqi->aqi_ispu, 2) }} <br><small>{{ $iaqi->category_ispu }}</small></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <div class="card air-quality-card has-forecast">
+                    <!-- Card Header -->
+                    <div class="card-header bg-light d-flex align-items-center gap-2">
+                        <img src="{{ asset('images/regions/' . $iaqi->region->name . '.png') }}"
+                            alt="{{ $iaqi->region->name }} Logo" class="city-logo" style="width: 32px; height: 32px;">
+                        <div>
+                            <h6 class="mb-0">
+                                @if ($iaqi->region->city)
+                                    {{ $iaqi->region->city }}
+                                @else
+                                    {{ $iaqi->region->name }}
+                                @endif
+                            </h6>
+                            <small
+                                class="text-muted">{{ \Carbon\Carbon::parse($iaqi->observed_at)->locale('id')->translatedFormat('j F Y H:i') }}</small>
+                        </div>
+                    </div>
 
-                <!-- Card 2 -->
-                <div class="detail-left-body card-block">
-                    <div class="detail-body-content">
-                        <p><strong>Wilayah:</strong> {{ $data['region_name'] }}</p>
-                        <p><strong>Tanggal Peramalan:</strong> {{ \Carbon\Carbon::parse($data['date'])->locale('id')->translatedFormat('j F Y') }}</p>
-                        <p><strong>PM 2.5:</strong> {{ $data['pm25'] }} µg/m³</p>
-                        <p><strong>Indeks Kualitas Udara (US EPA):</strong> {{ $data['aqi_us_epa'] }} —
-                            {{ $data['cat_us_epa'] }}</p>
-                        <p><strong>ISPU (RI):</strong> {{ $data['ispu'] }} — {{ $data['cat_ispu'] }}</p>
-                        <p><strong>Model:</strong> {{ $data['model_info']['model_type'] }}</p>
-                        <p><strong>CV Metrics (SVR):</strong></p>
-                        <ul class="mb-0">
-                            <li>R² = {{ number_format($data['cv_metrics_svr']['r2_mean'], 2) }}</li>
-                            <li>MAE = {{ number_format($data['cv_metrics_svr']['mae_mean'], 2) }}</li>
-                            <li>RMSE = {{ number_format($data['cv_metrics_svr']['rmse_mean'], 2) }}</li>
-                        </ul>
-                        <p><strong>CV Metrics (Baseline):</strong></p>
-                        <ul class="mb-0">
-                            <li>R² = {{ number_format($data['cv_metrics_baseline']['r2_mean'], 2) }}</li>
-                            <li>MAE = {{ number_format($data['cv_metrics_baseline']['mae_mean'], 2) }}</li>
-                            <li>RMSE = {{ number_format($data['cv_metrics_baseline']['rmse_mean'], 2) }}</li>
-                        </ul>
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <!-- Data Observasi -->
+                        <div class="mb-3">
+                            <p class="mb-2 text-muted small">DATA OBSERVASI</p>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div>
+                                        <small class="text-muted">PM 2.5</small>
+                                        <p class="fs-5 fw-bold mb-0">{{ $iaqi->pm25 }} μg/m³</p>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div>
+                                        <small class="text-muted">ISPU</small>
+                                        <p class="fs-5 fw-bold mb-0">{{ number_format($iaqi->aqi_ispu, 0) }}</p>
+                                        <small>{{ $iaqi->category_ispu }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-2">
+
+                        <!-- Data Peramalan -->
+                        <div>
+                            <p class="mb-2 text-muted small">
+                                PERAMALAN
+                                <span
+                                    class="badge bg-info ms-2">{{ \Carbon\Carbon::parse($data['date'])->locale('id')->translatedFormat('j F Y') }}</span>
+                            </p>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div>
+                                        <small class="text-muted">PM 2.5</small>
+                                        <p class="fs-5 fw-bold mb-0">{{ $data['pm25'] }} μg/m³</p>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div>
+                                        <small class="text-muted">ISPU</small>
+                                        <p class="fs-5 fw-bold mb-0">{{ $data['ispu'] }}</p>
+                                        <small>{{ $data['cat_ispu'] }}</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Model Information -->
+                            <div class="mt-3 pt-2 border-top">
+                                <p class="mb-2 text-muted small">INFORMASI MODEL</p>
+                                <p class="mb-1"><small><strong>Model:</strong>
+                                        {{ $data['model_info']['model_type'] }}</small></p>
+                                <p class="mb-2"><small><strong>US EPA AQI:</strong> {{ $data['aqi_us_epa'] }} —
+                                        {{ $data['cat_us_epa'] }}</small></p>
+
+                                <div class="row mt-2">
+                                    <div class="col-6">
+                                        <p class="mb-2 text-muted small">CV METRICS (SVR)</p>
+                                        <ul class="mb-0 ps-3">
+                                            <li><small>R² = {{ number_format($data['cv_metrics_svr']['r2_mean'], 2) }}</small>
+                                            </li>
+                                            <li><small>MAE =
+                                                    {{ number_format($data['cv_metrics_svr']['mae_mean'], 2) }}</small></li>
+                                            <li><small>RMSE =
+                                                    {{ number_format($data['cv_metrics_svr']['rmse_mean'], 2) }}</small></li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-6">
+                                        <p class="mb-2 text-muted small">CV METRICS (BASELINE)</p>
+                                        <ul class="mb-0 ps-3">
+                                            <li><small>R² =
+                                                    {{ number_format($data['cv_metrics_baseline']['r2_mean'], 2) }}</small>
+                                            </li>
+                                            <li><small>MAE =
+                                                    {{ number_format($data['cv_metrics_baseline']['mae_mean'], 2) }}</small>
+                                            </li>
+                                            <li><small>RMSE =
+                                                    {{ number_format($data['cv_metrics_baseline']['rmse_mean'], 2) }}</small>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -124,6 +173,14 @@
     </script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
+        function getAQIColor(aqi) {
+            if (aqi == "Baik") return 'green';
+            if (aqi == "Sedang") return 'blue';
+            if (aqi == "Tidak Sehat") return 'yellow';
+            if (aqi == "Sangat Tidak Sehat") return 'red';
+            return 'black'; // 201+
+        }
+
         // Inisialisasi Peta Leaflet
         const map = L.map('detailMap', {
             center: [-2.5, 118],
@@ -163,6 +220,33 @@
             }
             map.fitBounds(bounds);
         }
+
+        const region = @json($region);
+        const iaqi = @json($iaqi);
+
+        const lat = parseFloat(region.latitude);
+        const lng = parseFloat(region.longitude);
+        const latestNum = parseFloat(iaqi.aqi_ispu);
+        const latest = isNaN(latestNum) ? null : latestNum.toFixed(2);
+
+        const popupContent = `
+                    <b>${region.name}${region.city ? ', ' + region.city : ''}</b><br>
+                    Indeks Kualitas Udara (ISPU): ${String(latest)} - ${iaqi.category_ispu}
+                `;
+
+        L.circleMarker([lat, lng], {
+                radius: 8,
+                fillColor: getAQIColor(iaqi.category_ispu),
+                color: '#000',
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.8
+            })
+            .addTo(map)
+            .bindPopup(popupContent);
+
+        // Fokus ke koordinat region
+        map.setView([lat, lng], 6);
 
         map.on('load', fixMapBounds);
         window.addEventListener('resize', fixMapBounds);

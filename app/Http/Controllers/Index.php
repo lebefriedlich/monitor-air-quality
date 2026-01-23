@@ -32,34 +32,36 @@ class Index extends Controller
         return view('index', compact('iaqiData', 'forecastRegions'));
     }
 
-    public function show($region_id)
+    public function show($name)
     {
-        $region = Region::find($region_id);
+        $region = Region::where('name', $name)->first();
         if (!$region) {
             return redirect()->back()->with('error', 'Wilayah tidak ditemukan');
         }
 
-        $iaqi = IAQI::where('region_id', $region_id)
+        $iaqi = IAQI::where('region_id', $region->id)
             // ->whereDate('observed_at', '2026-01-03')
+            ->latest('observed_at')
             ->first();
         if (!$iaqi) {
             return redirect()->back()->with('error', 'Data IAQI tidak ditemukan untuk wilayah ini');
         }
 
-        $cacheKey = "forecast_region_{$region_id}";
+        $cacheKey = "forecast_region_{$region->id}";
 
         if (Cache::has($cacheKey)) {
             $data = Cache::get($cacheKey);
 
             return view('detail', [
                 'source' => 'cache',
+                'region' => $region,
                 'iaqi'   => $iaqi,
                 'data'   => $data
             ]);
         }
 
         $forecast = ForecastIAQI::with('region')
-            ->where('region_id', $region_id)
+            ->where('region_id', $region->id)
             ->first();
 
         if (!$forecast) {
@@ -92,6 +94,7 @@ class Index extends Controller
         // 5. Kirim ke view
         return view('detail', [
             'source' => 'database',
+            'region' => $region,
             'iaqi'   => $iaqi,
             'data'   => $data
         ]);

@@ -48,8 +48,8 @@ body {
   color: white;
 
   padding: 79px 0 79px 0;
-  height: 625px;
-  min-height: 625px;
+  height: 100vh;
+  min-height: 100vh;
 
   display: flex;
   align-items: center;
@@ -398,11 +398,12 @@ body {
   max-width: 1280px;
   margin: 40px auto;
   padding: 0 20px;
+  align-items: stretch;
 }
 
-/* Kolom kiri berisi 2 card */
+/* Kolom kiri berisi card */
 .detail-left-column {
-  flex: 1;
+  flex: 2.5;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -441,8 +442,8 @@ body {
   padding: 12px 27px;
   gap: 10px;
 
-  width: 733px;
-  height: 343px;
+  width: 100%;
+  height: auto;
 
   background: #88dbff;
   border-radius: 0 0 12px 12px;
@@ -470,14 +471,17 @@ body {
 
 /* Map kanan */
 .detail-map {
-  flex: 1.5;
+  flex: 1;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
 }
 #detailMap {
   width: 100%;
-  height: 420px;
+  height: 100%;
+  flex: 1;
 }
 
 /* Responsive */
