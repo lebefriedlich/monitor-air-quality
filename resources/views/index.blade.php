@@ -156,7 +156,7 @@
 
                                         <div class="card-footer">
                                             @if ($data['forecastRegion'])
-                                                <a href="{{ route('region.show', ['region_id' => $data['iaqi']['name']]) }}"
+                                                <a href="{{ route('region.show', $data['iaqi']['name']) }}"
                                                     class="btn btn-sm btn-detail w-100">Lihat Detail</a>
                                             @else
                                                 <button class="btn btn-sm btn-secondary-1 w-100" disabled>Lihat Detail</button>
