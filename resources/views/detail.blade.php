@@ -104,14 +104,14 @@
                                 <div class="col-6">
                                     <div>
                                         <small class="text-muted">PM 2.5</small>
-                                        <p class="fs-5 fw-bold mb-0">{{ $data['pm25'] }} μg/m³</p>
+                                        <p class="fs-5 fw-bold mb-0">{{ $data['forecast_pm25'] }} μg/m³</p>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div>
                                         <small class="text-muted">ISPU</small>
-                                        <p class="fs-5 fw-bold mb-0">{{ $data['ispu'] }}</p>
-                                        <small>{{ $data['cat_ispu'] }}</small>
+                                        <p class="fs-5 fw-bold mb-0">{{ $data['forecast_ispu'] }}</p>
+                                        <small>{{ $data['forecast_category_ispu'] }}</small>
                                     </div>
                                 </div>
                             </div>
@@ -121,8 +121,8 @@
                                 <p class="mb-2 text-muted small">INFORMASI MODEL</p>
                                 <p class="mb-1"><small><strong>Model:</strong>
                                         {{ $data['model_info']['model_type'] }}</small></p>
-                                <p class="mb-2"><small><strong>US EPA AQI:</strong> {{ $data['aqi_us_epa'] }} —
-                                        {{ $data['cat_us_epa'] }}</small></p>
+                                <p class="mb-2"><small><strong>US EPA AQI:</strong> {{ $data['forecast_aqi'] }} —
+                                        {{ $data['forecast_category'] }}</small></p>
 
                                 <div class="row mt-2">
                                     <div class="col-6">
