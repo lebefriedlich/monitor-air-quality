@@ -23,9 +23,9 @@ class SyncForecastAirQuality extends Command
         $path      = '/forecast-single-region';
         $today     = Carbon::now()->toDateString();
         $endpoint  = "{$baseUrl}{$path}";
-        $startDate = Carbon::parse('2025-06-28')->startOfDay();
+        $startDate = Carbon::parse('2025-06-27')->startOfDay();
         $endDate   = Carbon::now()->endOfDay();
-        // $endDate   = Carbon::parse('2026-01-19')->endOfDay();
+        // $endDate   = Carbon::parse('2026-01-28')->endOfDay();
 
         $regions = Region::whereHas('iaqi', function ($query) use ($startDate, $endDate) {
             $query->whereBetween('observed_at', [$startDate, $endDate])
@@ -67,7 +67,7 @@ class SyncForecastAirQuality extends Command
 
             // // Check if the last observed_at date is today
             $lastObservedAt = Carbon::parse($iaqi->last()->observed_at);  // Convert to Carbon instance
-            if ($lastObservedAt->toDateString() !== Carbon::today()->toDateString()) {
+            if ($lastObservedAt->toDateString() !== $endDate->toDateString()) {
                 Log::warning("[ForecastAQI] Skipped {$region->name}: Last observed_at is not today");
                 continue;  // Skip if the last observed_at is not today
             }

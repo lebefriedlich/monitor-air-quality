@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\IAQI;
 use App\Models\ForecastIAQI;
 use App\Models\Region;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 class Index extends Controller
@@ -14,10 +15,22 @@ class Index extends Controller
         $iaqiData = Cache::get('iaqi_data_all_regions');
 
         if (!$iaqiData) {
-            $iaqiData = Region::with('latestIaqi')
-                ->orderBy('id', 'asc')
+            // $targetDate = '2026-01-28';
+            $targetDate = Carbon::now()->toDateString();
+
+            $latestPerRegion = IAQI::selectRaw('region_id, MAX(observed_at) as observed_at')
+                ->whereDate('observed_at', $targetDate)
+                ->groupBy('region_id');
+
+            $iaqiData = IAQI::joinSub($latestPerRegion, 'latest', function ($join) {
+                    $join->on('iaqi.region_id', '=', 'latest.region_id')
+                        ->on('iaqi.observed_at', '=', 'latest.observed_at');
+                })
+                ->with('region')
+                ->orderBy('iaqi.region_id', 'asc')
                 ->get()
-                ->map(function ($region) {
+                ->map(function ($iaqi) {
+                    $region = $iaqi->region;
                     return [
                         'id'        => $region->id,
                         'name'      => $region->name,
@@ -25,8 +38,8 @@ class Index extends Controller
                         'latitude'  => $region->latitude,
                         'longitude' => $region->longitude,
                         'url'       => $region->url,
-                        'iaqi'      => $region->latestIaqi ? $region->latestIaqi->toArray() : null,
-                        'status'    => $region->latestIaqi ? 'database' : 'no-data',
+                        'iaqi'      => $iaqi->toArray(),
+                        'status'    => 'database',
                     ];
                 })
                 ->values()
@@ -49,7 +62,7 @@ class Index extends Controller
                         'forecast_aqi'          => $forecast->forecast_aqi,
                         'forecast_category'     => $forecast->forecast_category,
                         'forecast_ispu'         => $forecast->forecast_ispu,
-                        'forecast_category_ispu'=> $forecast->forecast_category_ispu,
+                        'forecast_category_ispu' => $forecast->forecast_category_ispu,
                         'cv_metrics_svr'        => $forecast->cv_metrics_svr,
                         'cv_metrics_baseline'   => $forecast->cv_metrics_baseline,
                         'model_info'            => $forecast->model_info,
@@ -104,11 +117,11 @@ class Index extends Controller
             'region_id'   => $forecast->region_id,
             'region_name' => $forecast->region->name ?? null,
             'date'        => optional($forecast->date)->toDateString(),
-            'pm25'        => $forecast->forecast_pm25,
-            'aqi_us_epa'  => $forecast->forecast_aqi,
-            'cat_us_epa'  => $forecast->forecast_category,
-            'ispu'        => $forecast->forecast_ispu,
-            'cat_ispu'    => $forecast->forecast_category_ispu,
+            'forecast_pm25'        => $forecast->forecast_pm25,
+            'forecast_aqi'  => $forecast->forecast_aqi,
+            'forecast_category'  => $forecast->forecast_category,
+            'forecast_ispu'        => $forecast->forecast_ispu,
+            'forecast_category_ispu'    => $forecast->forecast_category_ispu,
             'cv_metrics_svr' => is_array($forecast->cv_metrics_svr)
                 ? $forecast->cv_metrics_svr
                 : json_decode($forecast->cv_metrics_svr, true),
