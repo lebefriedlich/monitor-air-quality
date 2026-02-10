@@ -21,11 +21,12 @@ class SyncForecastAirQuality extends Command
 
         $baseUrl   = config('services.api_base_url');
         $path      = '/forecast-single-region';
+        // $path      = '/run-experiments';
         $today     = Carbon::now()->toDateString();
         $endpoint  = "{$baseUrl}{$path}";
         $startDate = Carbon::parse('2025-06-27')->startOfDay();
         $endDate   = Carbon::now()->endOfDay();
-        // $endDate   = Carbon::parse('2026-01-28')->endOfDay();
+        // $endDate   = Carbon::parse('2026-01-22')->endOfDay();
 
         $regions = Region::whereHas('iaqi', function ($query) use ($startDate, $endDate) {
             $query->whereBetween('observed_at', [$startDate, $endDate])
@@ -97,7 +98,7 @@ class SyncForecastAirQuality extends Command
                 $response = Http::withHeaders([
                     'x-api-key' => config('services.api_key'),
                 ])
-                    ->timeout(120)
+                    ->timeout(900)
                     ->retry(3, 5000)
                     ->acceptJson()
                     ->asJson()

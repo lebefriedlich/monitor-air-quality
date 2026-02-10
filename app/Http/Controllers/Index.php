@@ -15,7 +15,7 @@ class Index extends Controller
         $iaqiData = Cache::get('iaqi_data_all_regions');
 
         if (!$iaqiData) {
-            // $targetDate = '2026-01-28';
+            // $targetDate = '2026-01-22';
             $targetDate = Carbon::now()->toDateString();
 
             $latestPerRegion = IAQI::selectRaw('region_id, MAX(observed_at) as observed_at')
@@ -84,8 +84,11 @@ class Index extends Controller
             return redirect()->back()->with('error', 'Wilayah tidak ditemukan');
         }
 
+        $targetDate = Carbon::now()->toDateString();
+        // $targetDate = '2026-01-22';
+
         $iaqi = IAQI::where('region_id', $region->id)
-            // ->whereDate('observed_at', '2026-01-03')
+            ->whereDate('observed_at', $targetDate)
             ->latest('observed_at')
             ->first();
         if (!$iaqi) {
