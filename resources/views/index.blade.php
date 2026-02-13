@@ -127,7 +127,7 @@
                                             <!-- Data Peramalan -->
                                             <div>
                                                 <p class="mb-2 text-muted small">
-                                                    PERAMALAN
+                                                    Rata-rata Peramalan 
                                                     @if ($forecastDateText)
                                                         <span class="badge bg-info ms-2">{{ $forecastDateText }}</span>
                                                     @endif

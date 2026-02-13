@@ -96,7 +96,7 @@
                         <!-- Data Peramalan -->
                         <div>
                             <p class="mb-2 text-muted small">
-                                PERAMALAN
+                                Rata-rata Peramalan
                                 <span
                                     class="badge bg-info ms-2">{{ \Carbon\Carbon::parse($data['date'])->locale('id')->translatedFormat('j F Y') }}</span>
                             </p>

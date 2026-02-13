@@ -123,39 +123,36 @@ class SyncForecastAirQuality extends Command
                     ]);
                     continue;
                 }
+                
+                $forecast = $result['forecasts'] ?? null;
 
-                // Ambil satu prediksi H+1 (asumsi selalu satu)
-                $pred = $result['forecasts'] ?? null;
-
-                if ($pred) {
-                    $aqi = (isset($pred['forecast_iaqi_us_estimated']) ? round($pred['forecast_iaqi_us_estimated']) : null)
-                        ?? (isset($pred['forecast_ispu_estimated']) ? round($pred['forecast_ispu_estimated']) : null)
+                if ($forecast) {
+                    $aqi = (isset($forecast['forecast_iaqi_us_estimated']) ? round($forecast['forecast_iaqi_us_estimated']) : null)
+                        ?? (isset($forecast['forecast_ispu_estimated']) ? round($forecast['forecast_ispu_estimated']) : null)
                         ?? null;
 
-                    $category = $pred['forecast_category_us_estimated']
-                        ?? $pred['forecast_category_ispu_estimated']
+                    $category = $forecast['forecast_category_us_estimated']
+                        ?? $forecast['forecast_category_ispu_estimated']
                         ?? null;
                 }
 
-                if ($pred === null || $aqi === null || $category === null) {
+                if ($forecast === null || $aqi === null || $category === null) {
                     Log::warning("[ForecastAQI] Invalid/empty forecast for region {$region->name}", [
-                        'pred' => $pred,
+                        'forecast' => $forecast,
                         'result' => $result,
                     ]);
                     continue;
                 }
 
-                $date = Carbon::parse($pred['date_local'] ?? now())->startOfDay();
-
                 $payloadDB = [
-                    'date'                     => $date,
-                    'forecast_pm25'           => isset($pred['forecast_pm25_ugm3']) ? round((float) $pred['forecast_pm25_ugm3'], 2) : null,
-                    'forecast_aqi'            => round((float) $pred['forecast_iaqi_us_estimated'], 2),
-                    'forecast_category'       => (string) $pred['forecast_category_us_estimated'],
-                    'forecast_ispu'           => round((float) $pred['forecast_ispu_estimated'], 2),
-                    'forecast_category_ispu'  => (string) $pred['forecast_category_ispu_estimated'] ?? null,
-                    'cv_metrics_svr'           => $pred['cv_metrics_svr'] ?? null,
-                    'cv_metrics_baseline'      => $pred['cv_metrics_baseline'] ?? null,
+                    'date'                     => $forecast['date_local'] ?? null,
+                    'forecast_pm25'            => isset($forecast['forecast_pm25_ugm3']) ? round((float) $forecast['forecast_pm25_ugm3'], 2) : null,
+                    'forecast_aqi'             => round((float) $forecast['forecast_iaqi_us_estimated'], 2),
+                    'forecast_category'        => (string) $forecast['forecast_category_us_estimated'],
+                    'forecast_ispu'            => round((float) $forecast['forecast_ispu_estimated'], 2),
+                    'forecast_category_ispu'   => (string) $forecast['forecast_category_ispu_estimated'] ?? null,
+                    'cv_metrics_svr'           => $forecast['cv_metrics_svr'] ?? null,
+                    'cv_metrics_baseline'      => $forecast['cv_metrics_baseline'] ?? null,
                     'model_info'               => $result['model_info'] ?? null,
                 ];
 
@@ -168,18 +165,18 @@ class SyncForecastAirQuality extends Command
 
                 Cache::forget($cacheKey);
                 Cache::put($cacheKey, [
-                    'region_id'   => $region->id,
-                    'region_name' => $region->name,
-                    'date'        => $date->toDateString(),
-                    'forecast_pm25'        => $payloadDB['forecast_pm25'],
-                    'forecast_aqi'  => $payloadDB['forecast_aqi'],
-                    'forecast_category'  => $payloadDB['forecast_category'],
-                    'forecast_ispu'        => $payloadDB['forecast_ispu'],
-                    'forecast_category_ispu'    => $payloadDB['forecast_category_ispu'],
-                    'cv_metrics_svr'      => is_array($payloadDB['cv_metrics_svr'])
+                    'region_id'             => $region->id,
+                    'region_name'           => $region->name,
+                    'date'                  => $payloadDB['date'],
+                    'forecast_pm25'         => $payloadDB['forecast_pm25'],
+                    'forecast_aqi'          => $payloadDB['forecast_aqi'],
+                    'forecast_category'     => $payloadDB['forecast_category'],
+                    'forecast_ispu'         => $payloadDB['forecast_ispu'],
+                    'forecast_category_ispu'=> $payloadDB['forecast_category_ispu'],
+                    'cv_metrics_svr'        => is_array($payloadDB['cv_metrics_svr'])
                         ? $payloadDB['cv_metrics_svr']
                         : json_decode($payloadDB['cv_metrics_svr'], true),
-                    'cv_metrics_baseline' => is_array($payloadDB['cv_metrics_baseline'])
+                    'cv_metrics_baseline'   => is_array($payloadDB['cv_metrics_baseline'])
                         ? $payloadDB['cv_metrics_baseline']
                         : json_decode($payloadDB['cv_metrics_baseline'], true),
                     'model_info'   => is_array($payloadDB['model_info'])
@@ -188,28 +185,27 @@ class SyncForecastAirQuality extends Command
                 ], 86400);
 
                 $forecastRegions[] = [
-                    'region_id'   => $region->id,
-                    'region_name' => $region->name,
-                    'date'        => $date->toDateString(),
-                    'forecast_pm25'        => $payloadDB['forecast_pm25'],
-                    'forecast_aqi'  => $payloadDB['forecast_aqi'],
-                    'forecast_category'  => $payloadDB['forecast_category'],
-                    'forecast_ispu'        => $payloadDB['forecast_ispu'],
-                    'forecast_category_ispu'    => $payloadDB['forecast_category_ispu'],
-                    'cv_metrics_svr'      => $payloadDB['cv_metrics_svr'],
-                    'cv_metrics_baseline' => $payloadDB['cv_metrics_baseline'],
-                    'model_info'   => $payloadDB['model_info'],
+                    'region_id'             => $region->id,
+                    'region_name'           => $region->name,
+                    'date'                  => $payloadDB['date'],
+                    'forecast_pm25'         => $payloadDB['forecast_pm25'],
+                    'forecast_aqi'          => $payloadDB['forecast_aqi'],
+                    'forecast_category'     => $payloadDB['forecast_category'],
+                    'forecast_ispu'         => $payloadDB['forecast_ispu'],
+                    'forecast_category_ispu'=> $payloadDB['forecast_category_ispu'],
+                    'cv_metrics_svr'        => $payloadDB['cv_metrics_svr'],
+                    'cv_metrics_baseline'   => $payloadDB['cv_metrics_baseline'],
+                    'model_info'            => $payloadDB['model_info'],
                 ];
 
                 Log::info("Forecast sync completed for region {$region->name}.");
             } catch (\Throwable $e) {
                 Log::error("[ForecastAQI] Exception while syncing {$region->name}", [
-                    'error'        => $e->getMessage(),
-                    'exception'    => get_class($e),
-                    'trace'        => $e->getTraceAsString(),
-                    'request_payload' => json_encode($payload),
+                    'error'             => $e->getMessage(),
+                    'exception'         => get_class($e),
+                    'trace'             => $e->getTraceAsString(),
+                    'request_payload'   => json_encode($payload),
                 ]);
-                // lanjut region lain
             }
         }
 

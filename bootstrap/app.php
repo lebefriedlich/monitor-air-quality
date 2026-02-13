@@ -17,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->command('app:sync-predict-air-quality')
+        $schedule->command('app:sync-forecast-air-quality')
             ->dailyAt('00:03');
 
         $schedule->command('app:sync-air-quality')
