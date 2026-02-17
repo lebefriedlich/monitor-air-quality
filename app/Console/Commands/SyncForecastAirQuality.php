@@ -22,7 +22,6 @@ class SyncForecastAirQuality extends Command
         $baseUrl   = config('services.api_base_url');
         $path      = '/forecast-single-region';
         // $path      = '/run-experiments';
-        $today     = Carbon::now()->toDateString();
         $endpoint  = "{$baseUrl}{$path}";
         $startDate = Carbon::parse('2025-06-27')->startOfDay();
         $endDate   = Carbon::now()->endOfDay();
@@ -66,21 +65,18 @@ class SyncForecastAirQuality extends Command
                 continue;
             }
 
-            // // Check if the last observed_at date is today
-            $lastObservedAt = Carbon::parse($iaqi->last()->observed_at);  // Convert to Carbon instance
+            $lastObservedAt = Carbon::parse($iaqi->last()->observed_at);
             if ($lastObservedAt->toDateString() !== $endDate->toDateString()) {
                 Log::warning("[ForecastAQI] Skipped {$region->name}: Last observed_at is not today");
-                continue;  // Skip if the last observed_at is not today
+                continue;
             }
 
-            // Susun payload sesuai app.py (kolom waktu masuk kandidat: observed_at)
             $payload = [
                 'id'        => (string) $region->id,
                 'name'      => (string) $region->name,
                 'latitude'  => (float) $region->latitude,
                 'longitude' => (float) $region->longitude,
                 'url'       => $region->url,
-                'date_now'  => $today,
                 'iaqi'      => $iaqi->map(function ($row) {
                     return [
                         'observed_at' => $row->observed_at !== null ? $row->observed_at : null,
