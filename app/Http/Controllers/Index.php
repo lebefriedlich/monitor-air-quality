@@ -88,7 +88,7 @@ class Index extends Controller
         // $targetDate = '2026-01-22';
 
         $iaqi = IAQI::where('region_id', $region->id)
-            ->whereDate('observed_at', $targetDate)
+            // ->whereDate('observed_at', $targetDate)
             ->latest('observed_at')
             ->first();
         if (!$iaqi) {
