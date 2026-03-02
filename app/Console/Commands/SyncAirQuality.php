@@ -28,7 +28,7 @@ class SyncAirQuality extends Command
         $allIAQIData = []; // Initialize the array before the chunk loop
 
         Region::chunk(5, function ($regions) use ($tokens, &$allIAQIData) {
-            foreach ($regions as $index => $region) {
+            foreach ($regions as $region) {
 
                 $data = null;
 
@@ -149,7 +149,7 @@ class SyncAirQuality extends Command
 
 
     // =========================================================
-    // ------------ RUMUS INTERPOLASI LINIER (WAQI) -----------
+    // ---------------- RUMUS INTERPOLASI LINIER ---------------
     // =========================================================
     private function linear($Cp, $BP_Hi, $BP_Lo, $I_Hi, $I_Lo)
     {
