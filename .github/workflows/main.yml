@@ -1,39 +1,36 @@
-name: Deploy Laravel to Server
-
+name: Laravel Deploy via FTP
+ 
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      # Upload full Laract project (kecuali public)
-      - name: Upload Laract except public
-        uses: appleboy/scp-action@v0.1.4
+      - name: Upload aplikasi (tanpa folder public/)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          source: "."
-          target: "/home/${{ secrets.SSH_USERNAME }}/monitor-air-quality"
-          rm: false
-          strip_components: 0
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME_NON_PUBLIC }}
+          password: ${{ secrets.FTP_PASSWORD_NON_PUBLIC }}
+          server-dir: /  # Direktori aplikasi Laravel di server
+          local-dir: ./  # Direktori root aplikasi Laravel
+          exclude: |
+            public
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
 
-      # Upload only public folder ke public_html
-      - name: Upload public folder contents
-        uses: appleboy/scp-action@v0.1.4
+      - name: Upload folder public ke subdomain
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          source: "public/*,!public/index.php"
-          target: "/home/${{ secrets.SSH_USERNAME }}/public_html/monitor-air-quality.mhna.my.id"
-          strip_components: 1
-          rm: false
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /  # Direktori untuk subdomain
+          local-dir: ./public/  # Folder public Laravel
