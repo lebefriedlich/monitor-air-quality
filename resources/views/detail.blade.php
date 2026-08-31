@@ -125,7 +125,7 @@
                                         {{ $data['forecast_category'] }}</small></p>
 
                                 <div class="row mt-2">
-                                    <div class="col-6">
+                                    <div class="col-md-4 col-12 mb-2">
                                         <p class="mb-2 text-muted small">CV METRICS (SVR)</p>
                                         <ul class="mb-0 ps-3">
                                             <li><small>R² = {{ number_format($data['cv_metrics_svr']['r2_mean'], 2) }}</small>
@@ -136,7 +136,21 @@
                                                     {{ number_format($data['cv_metrics_svr']['rmse_mean'], 2) }}</small></li>
                                         </ul>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-md-4 col-12 mb-2">
+                                        <p class="mb-2 text-muted small">CV METRICS (XGBOOST)</p>
+                                        <ul class="mb-0 ps-3">
+                                            <li><small>R² =
+                                                    {{ number_format($data['cv_metrics_xgboost']['r2_mean'], 2) }}</small>
+                                            </li>
+                                            <li><small>MAE =
+                                                    {{ number_format($data['cv_metrics_xgboost']['mae_mean'], 2) }}</small>
+                                            </li>
+                                            <li><small>RMSE =
+                                                    {{ number_format($data['cv_metrics_xgboost']['rmse_mean'], 2) }}</small>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-4 col-12 mb-2">
                                         <p class="mb-2 text-muted small">CV METRICS (BASELINE)</p>
                                         <ul class="mb-0 ps-3">
                                             <li><small>R² =

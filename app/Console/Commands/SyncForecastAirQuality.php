@@ -65,11 +65,11 @@ class SyncForecastAirQuality extends Command
                 continue;
             }
 
-            $lastObservedAt = Carbon::parse($iaqi->last()->observed_at);
-            if ($lastObservedAt->toDateString() !== $endDate->toDateString()) {
-                Log::warning("[ForecastAQI] Skipped {$region->name}: Last observed_at is not today");
-                continue;
-            }
+            // $lastObservedAt = Carbon::parse($iaqi->last()->observed_at);
+            // if ($lastObservedAt->toDateString() !== $endDate->toDateString()) {
+            //     Log::warning("[ForecastAQI] Skipped {$region->name}: Last observed_at is not today");
+            //     continue;
+            // }
 
             $payload = [
                 'id'        => (string) $region->id,
@@ -149,6 +149,7 @@ class SyncForecastAirQuality extends Command
                     'forecast_category_ispu'   => (string) $forecast['forecast_category_ispu_estimated'] ?? null,
                     'cv_metrics_svr'           => $forecast['cv_metrics_svr'] ?? null,
                     'cv_metrics_baseline'      => $forecast['cv_metrics_baseline'] ?? null,
+                    'cv_metrics_xgboost'       => $forecast['cv_metrics_xgboost'] ?? null,
                     'model_info'               => $result['model_info'] ?? null,
                 ];
 
@@ -168,13 +169,16 @@ class SyncForecastAirQuality extends Command
                     'forecast_aqi'          => $payloadDB['forecast_aqi'],
                     'forecast_category'     => $payloadDB['forecast_category'],
                     'forecast_ispu'         => $payloadDB['forecast_ispu'],
-                    'forecast_category_ispu'=> $payloadDB['forecast_category_ispu'],
+                    'forecast_category_ispu' => $payloadDB['forecast_category_ispu'],
                     'cv_metrics_svr'        => is_array($payloadDB['cv_metrics_svr'])
                         ? $payloadDB['cv_metrics_svr']
                         : json_decode($payloadDB['cv_metrics_svr'], true),
                     'cv_metrics_baseline'   => is_array($payloadDB['cv_metrics_baseline'])
                         ? $payloadDB['cv_metrics_baseline']
                         : json_decode($payloadDB['cv_metrics_baseline'], true),
+                    'cv_metrics_xgboost'    => is_array($payloadDB['cv_metrics_xgboost'])
+                        ? $payloadDB['cv_metrics_xgboost']
+                        : json_decode($payloadDB['cv_metrics_xgboost'], true),
                     'model_info'   => is_array($payloadDB['model_info'])
                         ? $payloadDB['model_info']
                         : json_decode($payloadDB['model_info'], true),
@@ -190,6 +194,7 @@ class SyncForecastAirQuality extends Command
                     'forecast_ispu'         => $payloadDB['forecast_ispu'],
                     'forecast_category_ispu'=> $payloadDB['forecast_category_ispu'],
                     'cv_metrics_svr'        => $payloadDB['cv_metrics_svr'],
+                    'cv_metrics_xgboost'    => $payloadDB['cv_metrics_xgboost'],
                     'cv_metrics_baseline'   => $payloadDB['cv_metrics_baseline'],
                     'model_info'            => $payloadDB['model_info'],
                 ];
